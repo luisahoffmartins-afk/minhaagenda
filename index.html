@@ -978,6 +978,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       </select>
     </div>
     <div class="f" id="evRepeatEndRow" style="display:none"><label>Repetir até</label><input type="date" id="evRepeatEnd"/></div>
+    <div class="f"><label>Ícone</label><div class="emoji-row" id="evEmojiRow"></div></div>
     <div class="f"><label>Cor do evento</label><div class="cp-wrap" id="evCP"></div></div>
     <div class="sh-acts">
       <button class="btn-cancel" id="closeEvSheet">Cancelar</button>
@@ -992,6 +993,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <div class="sh-handle"></div>
     <h2 id="taskShTitle">Nova tarefa</h2>
     <div class="f"><label>Título</label><input type="text" id="taskTitle" placeholder="O que fazer..." autocomplete="off"/></div>
+    <div class="f"><label>Ícone</label><div class="emoji-row" id="taskEmojiRow"></div></div>
     <div class="f"><label>Cor da tarefa</label><div class="cp-wrap" id="taskCP"></div></div>
     <div class="f"><label>Agenda</label><div class="cal-opts" id="taskCalOpts"></div></div>
     <div class="f"><label>Data limite</label><input type="date" id="taskDate"/></div>
@@ -1231,6 +1233,7 @@ let editEvId=null,editTaskId=null,editHabitId=null,editCalId=null,actEvId=null,a
 let evColor=PRESETS[0],taskColor=PRESETS[1],habitColor=PRESETS[2],calColor=PRESETS[0],editCalColor=PRESETS[0];
 let selEvCal=null,selTaskCal=null,selPri='med',selFreqs=[0,1,2,3,4,5,6];
 let selEmoji=EMOJIS[0],selHabitEmoji=HAB_EMOJIS[0],selCalEmoji=EMOJIS[0],selEditCalEmoji=EMOJIS[0];
+let selEvEmoji=EMOJIS[0],selTaskEmoji='✅';
 let fabOpen=false,ctxCalId=null;
 
 // helpers
@@ -1741,7 +1744,7 @@ function placeEvBlock(ev,col,gs){
   b.style.borderRadius='6px';b.style.padding='6px 10px';
   const titleEl=document.createElement('div');titleEl.className='ev-title';
   titleEl.style.cssText=`font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
-  titleEl.textContent=ev.title;
+  titleEl.textContent=(ev.emoji?ev.emoji+' ':'')+ev.title;
   const timeEl=document.createElement('div');timeEl.className='ev-time';
   timeEl.style.cssText='font-size:11px;opacity:.75;margin-top:2px;';
   if(!ev.allDay)timeEl.textContent=`${ev.start}–${ev.end}`;
@@ -1795,7 +1798,7 @@ function buildAlldayBand(bandEl, dates){
       item.style.cssText=`background:${ha(color,.18)};color:${color};`;
       const dot=document.createElement('span');
       dot.style.cssText=`width:7px;height:7px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block;`;
-      const txt=document.createElement('span');txt.textContent=ev.title;
+      const txt=document.createElement('span');txt.textContent=(ev.emoji?ev.emoji+' ':'')+ev.title;
       txt.style.cssText='overflow:hidden;text-overflow:ellipsis;';
       item.appendChild(dot);item.appendChild(txt);
       item.addEventListener('click',()=>openEvDetail(ev));
@@ -1808,7 +1811,7 @@ function buildAlldayBand(bandEl, dates){
       const color=t.color||'#9b9890';
       const item=document.createElement('div');item.className='allday-task-item';
       item.style.cssText=`background:${ha(color,.1)};color:${color};border-left-color:${color};`;
-      const chk=document.createElement('span');chk.textContent='☐';
+      const chk=document.createElement('span');chk.textContent=t.emoji||'☐';
       chk.style.cssText='flex-shrink:0;font-size:12px;';
       const txt=document.createElement('span');txt.textContent=t.title;
       txt.style.cssText='overflow:hidden;text-overflow:ellipsis;';
@@ -1899,7 +1902,7 @@ function renderQuad(){
   const vis=new Set(cals.filter(c=>c.vis).map(c=>c.id));
   const today=fmtDate(new Date());
   for(let i=0;i<4;i++){
-    const d=addDays(weekStart,i); // consecutive: Dom, Seg, Ter, Qua
+    const d=addDays(curDate,i); // consecutive 4 days starting from curDate
     const ds=fmtDate(d);    const isToday=ds===today;
     const note=getNote(ds);
     const booksToday=getBooksForDate(ds);
@@ -1974,8 +1977,8 @@ function renderQuad(){
 
     cell.appendChild(qs);qv.appendChild(cell);
   }
-  const end4=addDays(weekStart,3);
-  document.getElementById('periodLabel').textContent=`${weekStart.getDate()}–${end4.getDate()} ${MONTHS_S[weekStart.getMonth()]}`;
+  const end4=addDays(curDate,3);
+  document.getElementById('periodLabel').textContent=`${curDate.getDate()}–${end4.getDate()} ${MONTHS_S[curDate.getMonth()]}`;
 }
 // ══════════════════════════════════════════════
 function renderMonth(){
@@ -2008,7 +2011,7 @@ function renderMonth(){
     });
     dayTasks.slice(0,Math.max(0,2-shown)).forEach(t=>{
       const color=t.color||'#9b9890';
-      const p=document.createElement('div');p.className='month-pill';p.style.background=ha(color,.15);p.style.color=color;p.textContent='✅ '+t.title;
+      const p=document.createElement('div');p.className='month-pill';p.style.background=ha(color,.15);p.style.color=color;p.textContent=(t.emoji||'✅')+' '+t.title;
       cell.appendChild(p);shown++;
     });
     const total=dayEvs.length+dayTasks.length;
@@ -2102,7 +2105,7 @@ function renderHWeek(){
         if(t.done){chip.style.opacity='.5';chip.style.textDecoration='line-through';}
         const chk=document.createElement('span');chk.style.cssText='flex-shrink:0;font-size:12px;';
         chk.textContent=t.done?'☑':'☐';
-        const txt=document.createElement('span');txt.className='hweek-chip-text';txt.textContent=t.title;
+        const txt=document.createElement('span');txt.className='hweek-chip-text';txt.textContent=(t.emoji?t.emoji+' ':'')+t.title;
         chip.appendChild(chk);chip.appendChild(txt);
         chip.addEventListener('click',e=>{e.stopPropagation();t.done=!t.done;sv('tb2_tasks',tasks);renderHWeek();renderTasks();renderSbProgress();});
         chips.appendChild(chip);
@@ -2223,7 +2226,7 @@ function buildTaskCard(t){
   const cb=document.createElement('div');cb.className='task-chk'+(t.done?' on':'');cb.style.color=color;cb.style.borderColor=color;
   cb.addEventListener('click',e=>{e.stopPropagation();t.done=!t.done;sv('tb2_tasks',tasks);renderTasks();renderAll();});
   const body=document.createElement('div');body.className='task-body';
-  const tt=document.createElement('div');tt.className='task-title';tt.textContent=t.title;
+  const tt=document.createElement('div');tt.className='task-title';tt.textContent=(t.emoji?t.emoji+' ':'')+t.title;
   const meta=document.createElement('div');meta.className='task-meta';
   if(t.priority){const pm={low:{bg:'#e8f5e9',tc:'#2e7d32',l:'Baixa'},med:{bg:'#fff8e1',tc:'#e65100',l:'Média'},high:{bg:'#ffebee',tc:'#c62828',l:'Alta'}}[t.priority]||{bg:'#fff',tc:'#333',l:''};const pt=document.createElement('span');pt.className='task-pri';pt.style.background=pm.bg;pt.style.color=pm.tc;pt.textContent=pm.l;meta.appendChild(pt);}
   if(t.date){const dt=document.createElement('span');dt.className='task-date'+(overdue?' late':'');dt.textContent=t.date.split('-').reverse().join('/');meta.appendChild(dt);}
@@ -2321,6 +2324,8 @@ function openNewEv(date,start,end){
   document.getElementById('evRepeatEnd').value='';
   selEvCal=cals[0]?.id||null;
   evColor=cals[0]?.color||PRESETS[0];
+  selEvEmoji=EMOJIS[0];
+  buildEmoji('evEmojiRow',EMOJIS,selEvEmoji,e=>selEvEmoji=e);
   buildCalOpts('evCalOpts',selEvCal,id=>{selEvCal=id;const c=cals.find(x=>x.id===id);if(c){evColor=c.color;updCP('evCP',evColor);}});
   buildCP('evCP',evColor,c=>evColor=c);
   document.getElementById('saveEvBtn').style.background=evColor;
@@ -2336,6 +2341,8 @@ function openEditEv(ev){
   document.getElementById('evRepeatEndRow').style.display=(ev.repeat&&ev.repeat!=='none')?'block':'none';
   document.getElementById('evRepeatEnd').value=ev.repeatEnd||'';
   selEvCal=ev.calId||cals[0]?.id||null;evColor=ev.color||PRESETS[0];
+  selEvEmoji=ev.emoji||EMOJIS[0];
+  buildEmoji('evEmojiRow',EMOJIS,selEvEmoji,e=>selEvEmoji=e);
   buildCalOpts('evCalOpts',selEvCal,id=>selEvCal=id);buildCP('evCP',evColor,c=>evColor=c);
   openSh('evSheet');
 }
@@ -2348,7 +2355,7 @@ function saveEv(){
   const repeat=document.getElementById('evRepeat').value;
   const repeatEnd=document.getElementById('evRepeatEnd').value||'';
   if(!date)return;
-  const evData={title,date,start,end,allDay,repeat,repeatEnd,calId:selEvCal,color:evColor};
+  const evData={title,date,start,end,allDay,repeat,repeatEnd,calId:selEvCal,color:evColor,emoji:selEvEmoji};
   if(editEvId){
     // remove old recurrences, replace with updated base
     evs=evs.filter(x=>x.id!==editEvId&&x.parentId!==editEvId);
@@ -2372,7 +2379,8 @@ function openNewTask(date){
   document.getElementById('taskRepeat').value='none';
   document.getElementById('taskRepeatEndRow').style.display='none';
   document.getElementById('taskRepeatEnd').value='';
-  selTaskCal=cals[0]?.id||null;taskColor=PRESETS[1];selPri='med';
+  selTaskCal=cals[0]?.id||null;taskColor=PRESETS[1];selPri='med';selTaskEmoji='✅';
+  buildEmoji('taskEmojiRow',[...EMOJIS,'✅','📌','🔖','💡','⚡','🎯','🛠','📋','🔔','💬','🧩','🚀','📝','🗒','⏰','🔑','🏷','💎','🌟','⭐'],selTaskEmoji,e=>selTaskEmoji=e);
   buildCalOpts('taskCalOpts',selTaskCal,id=>selTaskCal=id);
   buildCP('taskCP',taskColor,c=>taskColor=c);refreshPri();
   openSh('taskSheet');if(isD())setTimeout(()=>document.getElementById('taskTitle').focus(),150);
@@ -2385,6 +2393,8 @@ function openEditTask(t){
   document.getElementById('taskRepeatEndRow').style.display=(t.repeat&&t.repeat!=='none')?'block':'none';
   document.getElementById('taskRepeatEnd').value=t.repeatEnd||'';
   selTaskCal=t.calId||cals[0]?.id||null;taskColor=t.color||PRESETS[1];selPri=t.priority||'med';
+  selTaskEmoji=t.emoji||'✅';
+  buildEmoji('taskEmojiRow',[...EMOJIS,'✅','📌','🔖','💡','⚡','🎯','🛠','📋','🔔','💬','🧩','🚀','📝','🗒','⏰','🔑','🏷','💎','🌟','⭐'],selTaskEmoji,e=>selTaskEmoji=e);
   buildCalOpts('taskCalOpts',selTaskCal,id=>selTaskCal=id);
   buildCP('taskCP',taskColor,c=>taskColor=c);refreshPri();
   openSh('taskSheet');
@@ -2394,7 +2404,7 @@ function saveTask(){
   const date=document.getElementById('taskDate').value,notes=document.getElementById('taskNotes').value.trim();
   const repeat=document.getElementById('taskRepeat').value;
   const repeatEnd=document.getElementById('taskRepeatEnd').value||'';
-  const tData={title,date,calId:selTaskCal,color:taskColor,priority:selPri,notes,repeat,repeatEnd,done:false};
+  const tData={title,date,calId:selTaskCal,color:taskColor,priority:selPri,notes,repeat,repeatEnd,done:false,emoji:selTaskEmoji};
   if(editTaskId){
     tasks=tasks.filter(x=>x.id!==editTaskId&&x.parentId!==editTaskId);
     tData.id=editTaskId;
@@ -2582,7 +2592,7 @@ function openEvDetail(ev){
   actEvId=ev.id;
   const cal=cals.find(c=>c.id===ev.calId);
   const color=ev.color||cal?.color||PRESETS[0];
-  document.getElementById('evDetTitle').innerHTML=`<span class="det-dot" style="background:${color}"></span>${ev.title}`;
+  document.getElementById('evDetTitle').innerHTML=`<span class="det-dot" style="background:${color}"></span>${ev.emoji?ev.emoji+' ':''}${ev.title}`;
   const timeStr=ev.allDay?'Dia inteiro':`${ev.start}–${ev.end}`;
   document.getElementById('evDetSub').textContent=`${ev.date.split('-').reverse().join('/')} · ${timeStr}${cal?' · '+cal.emoji+' '+cal.name:''}`;
   // show recurrence options only if this event is part of a series
@@ -2618,7 +2628,7 @@ function openTaskDetail(t){
   actTaskId=t.id;
   const cal=cals.find(c=>c.id===t.calId);
   const color=t.color||cal?.color||'#9b9890';
-  document.getElementById('tdTitle').innerHTML=`<span class="det-dot" style="background:${color}"></span>${t.title}`;
+  document.getElementById('tdTitle').innerHTML=`<span class="det-dot" style="background:${color}"></span>${t.emoji?t.emoji+' ':''}${t.title}`;
   document.getElementById('tdSub').textContent=`${t.date?t.date.split('-').reverse().join('/'):'Sem data'}${cal?' · '+cal.emoji+' '+cal.name:''}`;
   document.getElementById('tdNotes').textContent=t.notes||'';
   const isRecurring=t.parentId||tasks.some(x=>x.parentId===t.id);
@@ -2686,7 +2696,8 @@ let swX=0,swY=0;
 // NAVIGATION
 // ══════════════════════════════════════════════
 function navigate(dir){
-  if(curView==='week'||curView==='hweek'||curView==='quad')weekStart=addDays(weekStart,dir*7);
+  if(curView==='week'||curView==='hweek'){weekStart=addDays(weekStart,dir*7);curDate=new Date(weekStart);}
+  else if(curView==='quad'){curDate=addDays(curDate,dir*4);weekStart=getWeekStart(curDate);}
   else if(curView==='month'){curDate=new Date(curDate.getFullYear(),curDate.getMonth()+dir,1);}
   renderAll();renderMiniCal();
 }
