@@ -260,11 +260,11 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .cp-native{width:36px;height:36px;padding:2px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;}
 .cp-hex{width:100px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--bg);}
 .cp-preview{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;}
-.cal-opts{display:flex;flex-direction:column;gap:4px;margin-top:3px;}
-.cal-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .15s;background:var(--surface);}
+.cal-opts{display:flex;flex-direction:column;gap:3px;margin-top:3px;}
+.cal-opt{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;background:none;}
 .cal-opt:hover{background:var(--accent-light);}
-.cal-opt.sel{border-color:var(--accent);background:var(--accent-light);}
-.cal-opt-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cal-opt.sel{background:var(--accent-light);box-shadow:0 0 0 1.5px var(--accent);}
+.cal-opt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .pri-row{display:flex;gap:6px;}
 .pri-btn{flex:1;padding:9px 4px;border-radius:10px;border:1px solid var(--border);font-size:12px;font-weight:400;font-family:'DM Sans',sans-serif;background:none;cursor:pointer;text-align:center;transition:all .15s;}
 .pri-btn:hover{background:var(--bg);}
@@ -279,6 +279,19 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .emoji-btn{width:36px;height:36px;border-radius:50%;border:1px solid transparent;background:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .emoji-btn:hover{background:var(--accent-light);}
 .emoji-btn.on{border-color:var(--accent);background:var(--accent-light);}
+.emoji-picker-wrap{display:flex;flex-direction:column;gap:8px;}
+.emoji-picker-top{display:flex;align-items:center;gap:6px;}
+.emoji-none-btn{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:none;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.emoji-none-btn:hover{border-color:var(--accent);color:var(--accent);}
+.emoji-none-btn.on{border-color:var(--accent);background:var(--accent-light);color:var(--accent);}
+.emoji-custom-wrap{display:flex;align-items:center;gap:6px;}
+.emoji-custom-btn{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:none;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.emoji-custom-btn:hover{border-color:var(--accent);color:var(--accent);}
+.emoji-custom-btn.on{border-color:var(--accent);background:var(--accent-light);color:var(--accent);}
+.emoji-custom-input{width:52px;height:36px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-size:22px;text-align:center;outline:none;cursor:pointer;transition:border-color .15s;display:none;}
+.emoji-custom-input:focus{border-color:var(--accent);}
+.emoji-custom-input.visible{display:block;}
+.emoji-row{display:flex;flex-wrap:wrap;gap:4px;}
 .sh-acts{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;}
 .btn-cancel{padding:10px 18px;border:none;border-radius:20px;background:none;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--muted);transition:all .15s;}
 .btn-cancel:hover{background:var(--bg);color:var(--text);}
@@ -583,18 +596,18 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .f-row{display:flex;gap:10px;}
 .f-row .f{flex:1;}
 .cp-wrap{margin-top:3px;}
-.cp-presets{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-bottom:8px;}
-.cp-swatch{width:100%;aspect-ratio:1;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:transform .15s;display:block;}
-.cp-swatch.sel{border-color:var(--text);transform:scale(1.18);}
+.cp-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.cp-swatch{width:26px;height:26px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:transform .15s;flex-shrink:0;}
+.cp-swatch.sel{border-color:var(--text);transform:scale(1.15);}
 .cp-custom{display:flex;align-items:center;gap:8px;}
 .cp-native{width:32px;height:32px;padding:2px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;}
 .cp-hex{flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--bg);}
 .cp-preview{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;}
-.cal-opts{display:flex;flex-direction:column;gap:3px;margin-top:3px;max-height:150px;overflow-y:auto;}
-.cal-opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;border:none;cursor:pointer;transition:all .15s;background:none;}
+.cal-opts{display:flex;flex-direction:column;gap:3px;margin-top:3px;padding:2px;}
+.cal-opt{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;background:none;}
 .cal-opt:hover{background:var(--accent-light);}
-.cal-opt.sel{background:var(--accent-light);outline:1.5px solid var(--accent);}
-.cal-opt-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cal-opt.sel{background:var(--accent-light);box-shadow:0 0 0 1.5px var(--accent);}
+.cal-opt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .pri-row{display:flex;gap:6px;}
 .pri-btn{flex:1;padding:8px 4px;border-radius:4px;border:1px solid var(--border);font-size:12px;font-weight:400;font-family:inherit;background:none;cursor:pointer;text-align:center;transition:all .15s;}
 .pri-btn:hover{background:#f1f3f4;}
@@ -783,7 +796,30 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .loading-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:ldot 1.2s infinite;}
 @keyframes ldot{0%,100%{opacity:.2;transform:scale(.7);}50%{opacity:1;transform:scale(1);}}
 
-/* ── DESKTOP — same as mobile, just wider ── */
+/* ── DAY SUMMARY POPUP ── */
+.dsum-section{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 6px;display:flex;align-items:center;gap:6px;}
+.dsum-section:first-child{margin-top:0;}
+.dsum-ev{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border-radius:10px;margin-bottom:4px;cursor:pointer;transition:background .1s;background:var(--bg);}
+.dsum-ev:hover{filter:brightness(.97);}
+.dsum-bar{width:4px;border-radius:2px;flex-shrink:0;align-self:stretch;min-height:20px;}
+.dsum-ev-body{flex:1;min-width:0;}
+.dsum-ev-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.dsum-ev-meta{font-size:11px;color:var(--muted);}
+.dsum-task{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;margin-bottom:4px;cursor:pointer;transition:background .1s;background:var(--bg);}
+.dsum-task:hover{filter:brightness(.97);}
+.dsum-task-chk{width:20px;height:20px;border-radius:50%;border:2px solid;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s;}
+.dsum-task-chk.on{background:currentColor;}
+.dsum-task-chk.on::after{content:'✓';color:#fff;font-size:11px;font-weight:700;}
+.dsum-task-title{flex:1;font-size:13px;font-weight:400;color:var(--text);}
+.dsum-task-title.done{text-decoration:line-through;color:var(--muted);}
+.dsum-habit{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;margin-bottom:4px;cursor:pointer;transition:background .1s;background:var(--bg);}
+.dsum-habit:hover{filter:brightness(.97);}
+.dsum-habit-icon{font-size:17px;flex-shrink:0;}
+.dsum-habit-name{flex:1;font-size:13px;font-weight:400;color:var(--text);}
+.dsum-habit-chk{font-size:18px;flex-shrink:0;}
+.dsum-note{font-size:12px;color:var(--muted);font-style:italic;padding:8px 10px;background:var(--bg);border-radius:10px;white-space:pre-wrap;line-height:1.6;}
+.dsum-empty{text-align:center;padding:28px 0;color:var(--muted);font-size:13px;font-style:italic;font-family:'Fraunces',serif;font-weight:300;}
+
 @media(min-width:700px){
   .sidebar{position:relative;transform:none!important;box-shadow:none!important;width:230px;flex-shrink:0;transition:width .25s ease,opacity .25s ease;}
   .sidebar.sb-collapsed{width:0!important;overflow:hidden!important;border:none!important;}
@@ -942,9 +978,12 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <div class="sheet-scroll">
       <div class="f"><label>Título</label><input type="text" id="evTitle" placeholder="Nome do evento..." autocomplete="off"/></div>
       <div class="f"><label>Ícone <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(opcional)</span></label>
-        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px;">
-          <div class="emoji-row" id="evEmojiRow" style="flex:1;"></div>
-          <button type="button" class="emoji-none-btn" id="evEmojiNone">Sem ícone</button>
+        <div class="emoji-picker-wrap">
+          <div class="emoji-picker-top">
+            <button type="button" class="emoji-none-btn on" id="evEmojiNone">Sem ícone</button>
+            <button type="button" class="emoji-custom-btn" id="evEmojiCustomBtn">✏️ Digitar</button>
+            <input type="text" class="emoji-custom-input" id="evEmojiCustomInput" placeholder="😀" maxlength="2"/>
+          </div>
         </div>
       </div>
       <div class="f"><label>Agenda</label><div class="cal-opts" id="evCalOpts"></div></div>
@@ -978,14 +1017,17 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <div class="sheet-scroll">
       <div class="f"><label>Título</label><input type="text" id="taskTitle" placeholder="O que fazer..." autocomplete="off"/></div>
       <div class="f"><label>Ícone <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(opcional)</span></label>
-        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px;">
-          <div class="emoji-row" id="taskEmojiRow" style="flex:1;"></div>
-          <button type="button" class="emoji-none-btn" id="taskEmojiNone">Sem ícone</button>
+        <div class="emoji-picker-wrap">
+          <div class="emoji-picker-top">
+            <button type="button" class="emoji-none-btn on" id="taskEmojiNone">Sem ícone</button>
+            <button type="button" class="emoji-custom-btn" id="taskEmojiCustomBtn">✏️ Digitar</button>
+            <input type="text" class="emoji-custom-input" id="taskEmojiCustomInput" placeholder="😀" maxlength="2"/>
+          </div>
         </div>
       </div>
       <div class="f"><label>Cor da tarefa</label><div class="cp-wrap" id="taskCP"></div></div>
       <div class="f"><label>Agenda</label><div class="cal-opts" id="taskCalOpts"></div></div>
-      <div class="f"><label>Data limite</label><input type="date" id="taskDate"/></div>
+      <div class="f"><label>Data</label><input type="date" id="taskDate"/></div>
       <div class="f"><label>Repetir</label>
         <select id="taskRepeat"><option value="none">Não repetir</option><option value="daily">Diariamente</option><option value="weekly">Semanalmente</option><option value="monthly">Mensalmente</option></select>
       </div>
@@ -1167,7 +1209,27 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
   </div>
 </div>
 
-<!-- CTX MENU -->
+<!-- DAY SUMMARY POPUP -->
+<div class="sheet-ov" id="daySummaryPopup">
+  <div class="sheet" style="height:520px;max-height:88dvh;">
+    <div class="sh-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0;">
+      <button id="daySumPrev" style="background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;font-size:16px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+      <div style="text-align:center;flex:1;">
+        <div id="daySumTitle" style="font-family:'Fraunces',serif;font-size:17px;font-weight:400;font-style:italic;color:var(--text);text-transform:uppercase;letter-spacing:.3px;"></div>
+        <div id="daySumCount" style="font-size:11px;color:var(--muted);margin-top:2px;"></div>
+      </div>
+      <button id="daySumNext" style="background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;font-size:16px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
+      <button id="daySumClose" style="background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;font-size:16px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:8px;">×</button>
+    </div>
+    <div class="sheet-scroll" id="daySumBody"></div>
+    <div style="flex-shrink:0;padding:10px 0 calc(10px + var(--safe-b));border-top:1px solid var(--border);margin-top:4px;">
+      <button id="daySumAdd" style="width:100%;padding:11px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;">＋ Adicionar ao dia</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="ctx" id="ctx">
   <div class="ctx-item" id="ctxEdit">✏️ Editar agenda</div>
   <div class="ctx-div"></div>
@@ -1341,6 +1403,34 @@ function buildEmoji(id,list,cur,cb){
     b.textContent=em;b.type='button';
     b.addEventListener('click',()=>{cb(em);c.querySelectorAll('.emoji-btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');});
     c.appendChild(b);
+  });
+}
+
+// Sets up the "Digitar" custom emoji input for a given prefix (ev or task)
+function setupEmojiCustomInput(prefix, getCb, setCb){
+  const noneBtn=document.getElementById(`${prefix}EmojiNone`);
+  const customBtn=document.getElementById(`${prefix}EmojiCustomBtn`);
+  const customInput=document.getElementById(`${prefix}EmojiCustomInput`);
+  if(!customBtn||!customInput)return;
+  customBtn.addEventListener('click',()=>{
+    const showing=customInput.classList.contains('visible');
+    if(showing){
+      customInput.classList.remove('visible');
+      customBtn.classList.remove('on');
+    } else {
+      customInput.classList.add('visible');
+      customBtn.classList.add('on');
+      customInput.focus();
+    }
+  });
+  customInput.addEventListener('input',()=>{
+    const val=[...customInput.value].slice(0,2).join(''); // support multi-byte emoji
+    customInput.value=val;
+    if(val){
+      setCb(val);
+      noneBtn.classList.remove('on');
+      document.querySelectorAll(`#${prefix}EmojiRow .emoji-btn`).forEach(b=>b.classList.remove('on'));
+    }
   });
 }
 
@@ -1676,6 +1766,8 @@ function renderWeek(){
     booksToday.forEach(b=>{extra+=`<div class="week-hdr-reading" style="color:${b.color||PRESETS[6]}">📖 ${b.title.slice(0,14)}${b.title.length>14?'…':''}</div>`;});
     if(note)extra+=`<div class="week-hdr-note">📝 ${note.slice(0,30)}${note.length>30?'…':''}</div>`;
     dh.innerHTML=`<div class="dow">${DAYS[d.getDay()]}</div><div class="dn">${d.getDate()}</div>${extra}`;
+    // click on the day number opens day summary popup
+    dh.querySelector('.dn').addEventListener('click',e=>{e.stopPropagation();openDaySummary(ds);});
     hdr.appendChild(dh);
     const col=document.createElement('div');col.className='day-col';dc.appendChild(col);
     buildDayColumn(d,col,document.getElementById('gsWeek'));
@@ -2122,8 +2214,11 @@ function openNewEv(date,start,end){
   evColor=cals[0]?.color||PRESETS[0];
   buildCalOpts('evCalOpts',selEvCal,id=>{selEvCal=id;const c=cals.find(x=>x.id===id);if(c){evColor=c.color;updCP('evCP',evColor);}});
   buildCP('evCP',evColor,c=>evColor=c);
-  buildEmoji('evEmojiRow',EMOJIS,null,e=>{evEmoji=e;document.getElementById('evEmojiNone').classList.remove('on');});
-  document.getElementById('evEmojiNone').classList.add('on'); // default: no emoji
+  buildEmoji('evEmojiRow',EMOJIS,null,e=>{evEmoji=e;});
+  document.getElementById('evEmojiNone').classList.add('on');
+  document.getElementById('evEmojiCustomBtn').classList.remove('on');
+  document.getElementById('evEmojiCustomInput').classList.remove('visible');
+  document.getElementById('evEmojiCustomInput').value='';
   document.getElementById('saveEvBtn').style.background=evColor;
   openSh('evSheet');if(isD())setTimeout(()=>document.getElementById('evTitle').focus(),150);
 }
@@ -2139,8 +2234,13 @@ function openEditEv(ev){
   document.getElementById('evRepeatEnd').value=ev.repeatEnd||'';
   selEvCal=ev.calId||cals[0]?.id||null;evColor=ev.color||PRESETS[0];
   buildCalOpts('evCalOpts',selEvCal,id=>selEvCal=id);buildCP('evCP',evColor,c=>evColor=c);
-  buildEmoji('evEmojiRow',EMOJIS,ev.emoji||null,e=>{evEmoji=e;document.getElementById('evEmojiNone').classList.remove('on');});
+  buildEmoji('evEmojiRow',EMOJIS,ev.emoji||null,e=>{evEmoji=e;document.getElementById('evEmojiNone').classList.remove('on');document.getElementById('evEmojiCustomBtn').classList.remove('on');document.getElementById('evEmojiCustomInput').classList.remove('visible');});
+  // if emoji is custom (not in preset list), show in custom input
+  const isPreset=EMOJIS.includes(ev.emoji);
   document.getElementById('evEmojiNone').classList.toggle('on',!ev.emoji);
+  document.getElementById('evEmojiCustomBtn').classList.toggle('on',!!ev.emoji&&!isPreset);
+  document.getElementById('evEmojiCustomInput').classList.toggle('visible',!!ev.emoji&&!isPreset);
+  document.getElementById('evEmojiCustomInput').value=(!isPreset&&ev.emoji)?ev.emoji:'';
   openSh('evSheet');
 }
 function saveEv(){
@@ -2180,8 +2280,11 @@ function openNewTask(date){
   selTaskCal=cals[0]?.id||null;taskColor=PRESETS[1];selPri='med';
   buildCalOpts('taskCalOpts',selTaskCal,id=>selTaskCal=id);
   buildCP('taskCP',taskColor,c=>taskColor=c);
-  buildEmoji('taskEmojiRow',EMOJIS,null,e=>{taskEmoji=e;document.getElementById('taskEmojiNone').classList.remove('on');});
+  buildEmoji('taskEmojiRow',EMOJIS,null,e=>{taskEmoji=e;});
   document.getElementById('taskEmojiNone').classList.add('on');
+  document.getElementById('taskEmojiCustomBtn').classList.remove('on');
+  document.getElementById('taskEmojiCustomInput').classList.remove('visible');
+  document.getElementById('taskEmojiCustomInput').value='';
   refreshPri();
   openSh('taskSheet');if(isD())setTimeout(()=>document.getElementById('taskTitle').focus(),150);
 }
@@ -2196,8 +2299,12 @@ function openEditTask(t){
   selTaskCal=t.calId||cals[0]?.id||null;taskColor=t.color||PRESETS[1];selPri=t.priority||'med';
   buildCalOpts('taskCalOpts',selTaskCal,id=>selTaskCal=id);
   buildCP('taskCP',taskColor,c=>taskColor=c);
-  buildEmoji('taskEmojiRow',EMOJIS,t.emoji||null,e=>{taskEmoji=e;document.getElementById('taskEmojiNone').classList.remove('on');});
+  buildEmoji('taskEmojiRow',EMOJIS,t.emoji||null,e=>{taskEmoji=e;document.getElementById('taskEmojiNone').classList.remove('on');document.getElementById('taskEmojiCustomBtn').classList.remove('on');document.getElementById('taskEmojiCustomInput').classList.remove('visible');});
+  const isPreset=EMOJIS.includes(t.emoji);
   document.getElementById('taskEmojiNone').classList.toggle('on',!t.emoji);
+  document.getElementById('taskEmojiCustomBtn').classList.toggle('on',!!t.emoji&&!isPreset);
+  document.getElementById('taskEmojiCustomInput').classList.toggle('visible',!!t.emoji&&!isPreset);
+  document.getElementById('taskEmojiCustomInput').value=(!isPreset&&t.emoji)?t.emoji:'';
   refreshPri();
   openSh('taskSheet');
 }
@@ -2603,8 +2710,10 @@ document.getElementById('qpReading').addEventListener('click',()=>{closeSh('quic
 document.getElementById('qpNote').addEventListener('click',()=>{closeSh('quickPopup');openNoteSheet(quickPopupDate);});
 document.getElementById('qpHabit').addEventListener('click',()=>{closeSh('quickPopup');openNewHabit();});
 // Emoji none buttons
-document.getElementById('evEmojiNone').addEventListener('click',()=>{evEmoji=null;document.getElementById('evEmojiNone').classList.add('on');document.querySelectorAll('#evEmojiRow .emoji-btn').forEach(b=>b.classList.remove('on'));});
-document.getElementById('taskEmojiNone').addEventListener('click',()=>{taskEmoji=null;document.getElementById('taskEmojiNone').classList.add('on');document.querySelectorAll('#taskEmojiRow .emoji-btn').forEach(b=>b.classList.remove('on'));});
+document.getElementById('evEmojiNone').addEventListener('click',()=>{evEmoji=null;document.getElementById('evEmojiNone').classList.add('on');document.getElementById('evEmojiCustomBtn').classList.remove('on');document.getElementById('evEmojiCustomInput').classList.remove('visible');document.getElementById('evEmojiCustomInput').value='';document.querySelectorAll('#evEmojiRow .emoji-btn').forEach(b=>b.classList.remove('on'));});
+document.getElementById('taskEmojiNone').addEventListener('click',()=>{taskEmoji=null;document.getElementById('taskEmojiNone').classList.add('on');document.getElementById('taskEmojiCustomBtn').classList.remove('on');document.getElementById('taskEmojiCustomInput').classList.remove('visible');document.getElementById('taskEmojiCustomInput').value='';document.querySelectorAll('#taskEmojiRow .emoji-btn').forEach(b=>b.classList.remove('on'));});
+setupEmojiCustomInput('ev',()=>evEmoji,v=>{evEmoji=v;});
+setupEmojiCustomInput('task',()=>taskEmoji,v=>{taskEmoji=v;});
 function closeFab(){fabOpen=false;document.getElementById('fabMenu').classList.remove('open');document.getElementById('fab').textContent='＋';}
 document.addEventListener('click',e=>{if(fabOpen&&!e.target.closest('.fab')&&!e.target.closest('.fab-menu'))closeFab();});
 
@@ -2677,8 +2786,137 @@ function renderReadingView(){
 }
 
 // ══════════════════════════════════════════════
-// QUICK POPUP
+// DAY SUMMARY POPUP
 // ══════════════════════════════════════════════
+let daySumDate=null;
+function openDaySummary(dateStr){
+  daySumDate=dateStr;
+  renderDaySummary();
+  openSh('daySummaryPopup');
+}
+function renderDaySummary(){
+  const ds=daySumDate;
+  const d=new Date(ds+'T12:00:00');
+  const today=fmtDate(new Date());
+  const vis=new Set(cals.filter(c=>c.vis).map(c=>c.id));
+  const dayEvs=evs.filter(ev=>ev.date===ds&&(!ev.calId||vis.has(ev.calId))).sort((a,b)=>t2m(a.start||'00:00')-t2m(b.start||'00:00'));
+  const dayTasks=tasks.filter(t=>t.date===ds&&(!t.calId||vis.has(t.calId)));
+  const dayHabits=habits.filter(h=>h.days.includes(d.getDay()));
+  const note=getNote(ds);
+  const books=getBooksForDate(ds);
+
+  // title
+  const DAYS_FULL=['Domingo','Segunda-Feira','Terça-Feira','Quarta-Feira','Quinta-Feira','Sexta-Feira','Sábado'];
+  const MONTHS_GEN=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('daySumTitle').textContent=`${DAYS_FULL[d.getDay()]}, ${d.getDate()} de ${MONTHS_GEN[d.getMonth()]}`;
+  const total=dayEvs.length+dayTasks.length+dayHabits.length;
+  const pending=dayTasks.filter(t=>!t.done).length;
+  const parts=[];
+  if(dayEvs.length)parts.push(`${dayEvs.length} evento${dayEvs.length>1?'s':''}`);
+  if(dayTasks.length)parts.push(`${pending} tarefa${pending!==1?'s':''} pendente${pending!==1?'s':''}`);
+  if(dayHabits.length)parts.push(`${dayHabits.length} hábito${dayHabits.length>1?'s':''}`);
+  document.getElementById('daySumCount').textContent=parts.length?parts.join(' · '):'Dia livre';
+
+  const body=document.getElementById('daySumBody');body.innerHTML='';
+
+  if(!dayEvs.length&&!dayTasks.length&&!dayHabits.length&&!note&&!books.length){
+    body.innerHTML=`<div class="dsum-empty">Nenhum item para este dia ✨</div>`;
+    return;
+  }
+
+  // Events
+  if(dayEvs.length){
+    const sec=document.createElement('div');sec.className='dsum-section';sec.innerHTML='📅 Eventos';body.appendChild(sec);
+    dayEvs.forEach(ev=>{
+      const cal=cals.find(c=>c.id===ev.calId);
+      const color=ev.color||cal?.color||PRESETS[0];
+      const row=document.createElement('div');row.className='dsum-ev';
+      row.style.borderLeft=`4px solid ${color}`;
+      row.style.paddingLeft='12px';
+      const evBody=document.createElement('div');evBody.className='dsum-ev-body';
+      const title=document.createElement('div');title.className='dsum-ev-title';
+      title.textContent=(ev.emoji?ev.emoji+' ':'')+ev.title;
+      const meta=document.createElement('div');meta.className='dsum-ev-meta';
+      meta.textContent=ev.allDay?'Dia inteiro':`${ev.start} – ${ev.end}`+(cal?' · '+cal.name:'');
+      evBody.appendChild(title);evBody.appendChild(meta);
+      const arr=document.createElement('span');arr.style.cssText='color:var(--muted);font-size:14px;flex-shrink:0;';arr.textContent='›';
+      row.appendChild(evBody);row.appendChild(arr);
+      row.addEventListener('click',()=>{closeSh('daySummaryPopup');setTimeout(()=>openEvDetail(ev),100);});
+      body.appendChild(row);
+    });
+  }
+
+  // Tasks
+  if(dayTasks.length){
+    const sec=document.createElement('div');sec.className='dsum-section';sec.innerHTML='✅ Tarefas';body.appendChild(sec);
+    dayTasks.forEach(t=>{
+      const cal=cals.find(c=>c.id===t.calId);
+      const color=t.color||cal?.color||'#9b9890';
+      const row=document.createElement('div');row.className='dsum-task';
+      const chk=document.createElement('div');chk.className='dsum-task-chk'+(t.done?' on':'');
+      chk.style.color=color;chk.style.borderColor=color;
+      if(t.done)chk.style.background=color;
+      chk.addEventListener('click',e=>{
+        e.stopPropagation();t.done=!t.done;sv('tb2_tasks',tasks);renderTasks();renderAll();renderDaySummary();
+      });
+      const titleEl=document.createElement('div');titleEl.className='dsum-task-title'+(t.done?' done':'');
+      titleEl.textContent=(t.emoji?t.emoji+' ':'')+t.title;
+      const arr=document.createElement('span');arr.style.cssText='color:var(--muted);font-size:14px;flex-shrink:0;';arr.textContent='›';
+      row.appendChild(chk);row.appendChild(titleEl);row.appendChild(arr);
+      row.addEventListener('click',e=>{if(e.target===chk)return;closeSh('daySummaryPopup');setTimeout(()=>openTaskDetail(t),100);});
+      body.appendChild(row);
+    });
+  }
+
+  // Habits
+  if(dayHabits.length){
+    const sec=document.createElement('div');sec.className='dsum-section';sec.innerHTML='🌿 Hábitos';body.appendChild(sec);
+    dayHabits.forEach(h=>{
+      const done=!!habitLogs[`${h.id}_${ds}`];
+      const row=document.createElement('div');row.className='dsum-habit';
+      row.style.opacity=done?'.75':'1';
+      const ico=document.createElement('div');ico.className='dsum-habit-icon';ico.textContent=h.emoji;
+      const nm=document.createElement('div');nm.className='dsum-habit-name';nm.textContent=h.name;
+      if(done)nm.style.textDecoration='line-through';
+      const chkEl=document.createElement('div');chkEl.className='dsum-habit-chk';
+      chkEl.style.cssText=`width:22px;height:22px;border-radius:50%;border:2px solid ${h.color};display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;transition:all .2s;`;
+      if(done){chkEl.style.background=h.color;chkEl.innerHTML=`<span style="color:#fff;font-weight:700;">✓</span>`;}
+      row.appendChild(ico);row.appendChild(nm);row.appendChild(chkEl);
+      row.addEventListener('click',()=>{toggleHabit(h.id,ds);renderDaySummary();});
+      body.appendChild(row);
+    });
+  }
+
+  // Reading
+  if(books.length){
+    const sec=document.createElement('div');sec.className='dsum-section';sec.innerHTML='📖 Lendo';body.appendChild(sec);
+    books.forEach(b=>{
+      const row=document.createElement('div');row.className='dsum-ev';
+      row.style.borderLeft=`4px solid ${b.color||PRESETS[6]}`;row.style.paddingLeft='12px';
+      const title=document.createElement('div');title.className='dsum-ev-title';title.style.color=b.color||PRESETS[6];title.textContent=b.title;
+      row.appendChild(title);body.appendChild(row);
+    });
+  }
+
+  // Note
+  if(note){
+    const sec=document.createElement('div');sec.className='dsum-section';sec.innerHTML='📝 Anotação';body.appendChild(sec);
+    const nd=document.createElement('div');nd.className='dsum-note';nd.textContent=note;body.appendChild(nd);
+  }
+}
+
+document.getElementById('daySumClose').addEventListener('click',()=>closeSh('daySummaryPopup'));
+document.getElementById('daySumPrev').addEventListener('click',()=>{
+  const d=new Date(daySumDate+'T12:00:00');d.setDate(d.getDate()-1);daySumDate=fmtDate(d);renderDaySummary();
+});
+document.getElementById('daySumNext').addEventListener('click',()=>{
+  const d=new Date(daySumDate+'T12:00:00');d.setDate(d.getDate()+1);daySumDate=fmtDate(d);renderDaySummary();
+});
+document.getElementById('daySumAdd').addEventListener('click',()=>{
+  closeSh('daySummaryPopup');setTimeout(()=>openQuickPopup(daySumDate),100);
+});
+
+
 let quickPopupDate=null;
 function openQuickPopup(date){
   quickPopupDate=date||fmtDate(new Date());
