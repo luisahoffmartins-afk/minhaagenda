@@ -9,6 +9,7 @@
 <title>Agenda</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Fraunces:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
 <style>
+@keyframes spin{to{transform:rotate(360deg);}}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{
   /* Palette: soft sage, blush, warm cream, terracotta accent */
@@ -260,6 +261,17 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .cp-native{width:36px;height:36px;padding:2px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;}
 .cp-hex{width:100px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--bg);}
 .cp-preview{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;}
+.cp-add-wrap{position:relative;flex-shrink:0;}
+.cp-add-btn{width:28px;height:28px;border-radius:50%;border:2px dashed var(--border);background:none;font-size:16px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0;font-family:'DM Sans',sans-serif;}
+.cp-add-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.cp-add-btn.saved{border-style:solid;border-color:var(--accent);color:var(--accent);}
+.cp-save-menu{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 20px rgba(45,42,38,.15);min-width:190px;z-index:2000;overflow:hidden;opacity:0;pointer-events:none;margin-top:-4px;transition:opacity .15s,margin-top .15s;}
+.cp-save-menu.open{opacity:1;pointer-events:all;margin-top:0;}
+.cp-save-opt{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;font-weight:500;color:var(--text);cursor:pointer;transition:background .1s;white-space:nowrap;}
+.cp-save-opt:hover{background:var(--accent-light);}
+.cp-save-opt .cp-save-icon{font-size:14px;flex-shrink:0;}
+.cp-save-opt.disabled{opacity:.4;pointer-events:none;}
+.cp-save-divider{height:1px;background:var(--border);margin:0;}
 .cal-opts{display:flex;flex-direction:column;gap:3px;margin-top:3px;}
 .cal-opt{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;background:none;}
 .cal-opt:hover{background:var(--accent-light);}
@@ -901,7 +913,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <button class="vs-btn" data-v="reading">📖 Leituras</button>
   </div>
   <button class="add-desktop-btn" id="addDesktop">＋ Novo</button>
-  <span id="syncStatus" title="Sincronizando..." style="font-size:14px;color:#c97d5a;cursor:default;flex-shrink:0;">↻</span>
+  <button id="syncBtn" style="font-size:12px;color:var(--muted);cursor:pointer;flex-shrink:0;background:none;border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-family:inherit;transition:all .15s;">↻ Sincronizar</button>
 </div>
 
 <div class="app-body" id="appBody">
@@ -919,7 +931,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="mini-grid" id="miniGrid"></div>
     </div>
     <div class="sb-sec">
-      <div class="sb-sec-hdr"><span class="sb-sec-title">Agendas</span><div style="display:flex;gap:4px;"><button class="sb-add" title="Paletas de cores" id="openPaletteBtn">🎨</button><button class="sb-add" id="newCalBtn">＋</button></div></div>
+      <div class="sb-sec-hdr"><span class="sb-sec-title">Agendas</span><div style="display:flex;gap:4px;"><button class="sb-add" title="Importar Google Agenda" id="openImportBtn">📥</button><button class="sb-add" title="Paletas de cores" id="openPaletteBtn">🎨</button><button class="sb-add" id="newCalBtn">＋</button></div></div>
       <div id="calList"></div>
     </div>
     <div class="sb-sec">
@@ -1123,7 +1135,16 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 
 <!-- NEW CAL SHEET -->
 <div class="sheet-ov" id="newCalSheet">
-  <div class="sheet">
+  <div class="sheet" style="height:auto;max-height:92dvh;overflow-y:auto;padding-bottom:calc(10px + var(--safe-b));">
+    <style>
+      #newCalSheet .f{margin-bottom:7px;}
+      #newCalSheet .f input,#newCalSheet .f select{padding:8px 11px;font-size:14px;}
+      #newCalSheet .emoji-btn{width:30px;height:30px;font-size:16px;}
+      #newCalSheet .cp-presets{margin-bottom:6px;gap:6px;}
+      #newCalSheet .cp-swatch{width:23px;height:23px;}
+      #newCalSheet h2{margin-bottom:8px;font-size:17px;}
+      #newCalSheet .sh-acts{margin-top:10px;padding:8px 0 0;}
+    </style>
     <div class="sh-handle"></div>
     <h2 id="newCalTitle">Nova Agenda</h2>
     <div class="f"><label>Nome</label><input type="text" id="calName" placeholder="Ex: Trabalho, Pessoal..." autocomplete="off"/></div>
@@ -1147,7 +1168,16 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 
 <!-- EDIT CAL SHEET -->
 <div class="sheet-ov" id="editCalSheet">
-  <div class="sheet">
+  <div class="sheet" style="height:auto;max-height:92dvh;overflow-y:auto;padding-bottom:calc(10px + var(--safe-b));">
+    <style>
+      #editCalSheet .f{margin-bottom:7px;}
+      #editCalSheet .f input,#editCalSheet .f select{padding:8px 11px;font-size:14px;}
+      #editCalSheet .emoji-btn{width:30px;height:30px;font-size:16px;}
+      #editCalSheet .cp-presets{margin-bottom:6px;gap:6px;}
+      #editCalSheet .cp-swatch{width:23px;height:23px;}
+      #editCalSheet h2{margin-bottom:8px;font-size:17px;}
+      #editCalSheet .sh-acts{margin-top:10px;padding:8px 0 0;}
+    </style>
     <div class="sh-handle"></div>
     <h2>Editar Agenda</h2>
     <div class="f"><label>Nome</label><input type="text" id="editCalName" autocomplete="off"/></div>
@@ -1245,6 +1275,47 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
   </div>
 </div>
 
+<!-- IMPORT ICS SHEET -->
+<div class="sheet-ov" id="importSheet">
+  <div class="sheet" style="display:flex;flex-direction:column;max-height:90dvh;">
+    <div class="sh-handle" style="flex-shrink:0;"></div>
+    <h2 style="margin-bottom:6px;flex-shrink:0;">📥 Importar Google Agenda</h2>
+    <div style="overflow-y:auto;flex:1;padding-bottom:8px;">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;">
+        No Google Agenda: <strong>⚙️ Configurações → Importar e exportar → Exportar</strong>. Descompacte o .zip e selecione o arquivo <strong>.ics</strong> aqui.
+      </div>
+      <div class="f">
+        <label>Agenda de destino</label>
+        <div class="cal-opts" id="importCalOpts"></div>
+      </div>
+      <div class="f">
+        <label>Arquivo .ics</label>
+        <div id="importDropZone" style="border:2px dashed var(--border);border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);">
+          <div style="font-size:32px;margin-bottom:8px;">📂</div>
+          <div style="font-size:13px;color:var(--muted);">Toque para selecionar o arquivo .ics</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="importFileName"></div>
+        </div>
+        <input type="file" id="importFileInput" accept=".ics" style="display:none;">
+      </div>
+      <div id="importPreview" style="display:none;margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Pré-visualização</div>
+        <div id="importPreviewList" style="max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;"></div>
+        <div id="importStats" style="font-size:12px;color:var(--muted);margin-top:6px;"></div>
+      </div>
+      <div id="importDupeRow" style="display:none;margin-bottom:12px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+          <input type="checkbox" id="importSkipDupes" checked style="width:16px;height:16px;accent-color:var(--accent);">
+          Ignorar eventos que já existem na agenda
+        </label>
+      </div>
+    </div>
+    <div class="sh-acts" style="flex-shrink:0;padding-top:8px;border-top:1px solid var(--border);margin-top:4px;">
+      <button class="btn-cancel" id="closeImportSheet">Cancelar</button>
+      <button class="btn-save" id="doImportBtn" style="background:var(--accent);opacity:.4;pointer-events:none;">Importar</button>
+    </div>
+  </div>
+</div>
+
 <!-- PALETTE MANAGER -->
 <div class="sheet-ov" id="paletteSheet">
   <div class="sheet" style="height:auto;max-height:88dvh;">
@@ -1254,8 +1325,9 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <button id="closePaletteSheet" style="background:none;border:1px solid var(--border);border-radius:50%;width:30px;height:30px;font-size:15px;color:var(--muted);cursor:pointer;">×</button>
     </div>
     <div class="sheet-scroll" id="paletteMgrBody"></div>
-    <div style="flex-shrink:0;padding:10px 0 calc(10px + var(--safe-b));border-top:1px solid var(--border);margin-top:4px;">
-      <button id="addPaletteBtn" class="add-palette-entry" style="width:100%;justify-content:center;">＋ Nova paleta</button>
+    <div style="flex-shrink:0;padding:10px 0 calc(10px + var(--safe-b));border-top:1px solid var(--border);margin-top:4px;display:flex;gap:8px;">
+      <button id="addPaletteBtn" class="add-palette-entry" style="flex:1;justify-content:center;">＋ Nova paleta</button>
+      <button id="saveAllPalettesBtn" style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;">💾 Salvar tudo</button>
     </div>
   </div>
 </div>
@@ -1351,10 +1423,31 @@ function r2h(rgb){const m=rgb.match(/\d+/g);if(!m||m.length<3)return rgb;return'
 const isD=()=>window.innerWidth>=700;
 
 // ── SYNC STATUS ──
+let lastSyncTime=null;
 function setSyncStatus(state){
-  const el=document.getElementById('syncStatus');if(!el)return;
-  const map={syncing:{icon:'↻',color:'#c97d5a',title:'Sincronizando...'},ok:{icon:'●',color:'#6b8f5e',title:'Sincronizado com a nuvem ☁️'},offline:{icon:'○',color:'#8a8077',title:'Sem conexão'},error:{icon:'✕',color:'#c0735e',title:'Erro de conexão'}};
-  const s=map[state]||map.ok;el.textContent=s.icon;el.style.color=s.color;el.title=s.title;
+  const el=document.getElementById('syncBtn');if(!el)return;
+  if(state==='syncing'){el.textContent='↻ Sincronizando...';el.style.color='#c97d5a';el.style.borderColor='rgba(201,125,90,.3)';el.disabled=true;}
+  else if(state==='ok'){
+    lastSyncTime=new Date();
+    const t=lastSyncTime.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    el.textContent=`☁️ Sincronizado ${t}`;el.style.color='#6b8f5e';el.style.borderColor='rgba(107,143,94,.3)';el.disabled=false;
+  } else if(state==='offline'){el.textContent='○ Sem conexão';el.style.color='#8a8077';el.style.borderColor='var(--border)';el.disabled=false;}
+  else if(state==='error'){el.textContent='✕ Erro — tentar de novo';el.style.color='#c0735e';el.style.borderColor='rgba(192,115,94,.3)';el.disabled=false;}
+}
+
+async function manualSync(){
+  const el=document.getElementById('syncBtn');
+  if(el.disabled)return;
+  setSyncStatus('syncing');
+  try{
+    // Just re-save current data to Firebase to confirm it's persisted
+    await Promise.all([
+      svCals(),svEvs(),svTasks(),svHabits(),svHabitLogs()
+    ]);
+    setSyncStatus('ok');
+  }catch(e){
+    setSyncStatus('error');console.error(e);
+  }
 }
 
 // ── NOTE / READING ACCESSORS ──
@@ -1425,20 +1518,182 @@ function initFirestoreListeners(){
   setTimeout(()=>{const o=document.getElementById('loadingOverlay');if(o)o.classList.add('hide');},600);
 }
 
-// ══════════════════════════════════════════════
-// COLOR PICKER
-// ══════════════════════════════════════════════
-function buildCP(id,cur,cb){
+// saved custom colors (persisted in localStorage)
+let customColors=JSON.parse(localStorage.getItem('tb2_customColors')||'[]');
+function saveCustomColor(hex){
+  if(!customColors.includes(hex)){customColors.push(hex);localStorage.setItem('tb2_customColors',JSON.stringify(customColors));}
+}
+
+// getCalIdFn: optional fn() that returns the currently selected calId, used to add color to that calendar's palette
+function buildCP(id,cur,cb,getCalIdFn){
   const c=document.getElementById(id);if(!c)return;
-  c.innerHTML=`<div class="cp-presets" id="${id}_p"></div><div class="cp-custom"><input type="color" class="cp-native" id="${id}_n" value="${cur}"><input type="text" class="cp-hex" id="${id}_h" placeholder="#000000" maxlength="7" value="${cur}"><div class="cp-preview" id="${id}_pv" style="background:${cur}"></div></div>`;
+  let currentHex=cur;
+
+  c.innerHTML=`
+    <div class="cp-presets" id="${id}_p"></div>
+    <div class="cp-custom" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <input type="color" class="cp-native" id="${id}_n" value="${cur}">
+      <input type="text" class="cp-hex" id="${id}_h" placeholder="#000000" maxlength="7" value="${cur}">
+      <div class="cp-preview" id="${id}_pv" style="background:${cur}"></div>
+      <div class="cp-add-wrap" id="${id}_aw">
+        <button type="button" class="cp-add-btn" id="${id}_add" title="Salvar esta cor">＋</button>
+      </div>
+    </div>
+    <div id="${id}_saved" style="display:${customColors.length?'flex':'none'};align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;">
+      <span style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">Salvas</span>
+    </div>`;
+
+  // create menu on body so it escapes overflow:hidden and transform stacking contexts
+  let existingMenu=document.getElementById(`${id}_menu`);
+  if(existingMenu)existingMenu.remove();
+  const menuEl=document.createElement('div');
+  menuEl.className='cp-save-menu';menuEl.id=`${id}_menu`;
+  menuEl.innerHTML=`
+    <div class="cp-save-opt" id="${id}_toPreset"><span class="cp-save-icon">🎨</span>Salvar nos presets</div>
+    <div class="cp-save-divider"></div>
+    <div class="cp-save-opt ${getCalIdFn?'':'disabled'}" id="${id}_toCal"><span class="cp-save-icon">📅</span><span id="${id}_calOptLabel">Salvar na paleta da agenda</span></div>`;
+  document.body.appendChild(menuEl);
+  const menu=menuEl;
+
+  function syncColor(hex,skipNative){
+    currentHex=hex;cb(hex);
+    if(!skipNative)document.getElementById(`${id}_n`).value=hex;
+    document.getElementById(`${id}_h`).value=hex;
+    document.getElementById(`${id}_pv`).style.background=hex;
+    document.querySelectorAll(`#${id}_p .cp-swatch`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
+    document.querySelectorAll(`#${id}_saved .cp-saved-dot`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
+    // update cal label in menu
+    if(getCalIdFn){
+      const calId=getCalIdFn();
+      const cal=cals.find(x=>x.id===calId);
+      const lbl=document.getElementById(`${id}_calOptLabel`);
+      const opt=document.getElementById(`${id}_toCal`);
+      if(lbl&&cal){lbl.textContent='Salvar na paleta: '+(cal.emoji?' ':'')+cal.name;opt.classList.remove('disabled');}
+      else if(opt){opt.classList.add('disabled');}
+    }
+  }
+
+  // helper: flash button feedback
+  function flashBtn(ok){
+    const btn=document.getElementById(`${id}_add`);if(!btn)return;
+    btn.textContent='✓';btn.classList.add('saved');
+    setTimeout(()=>{btn.textContent='＋';btn.classList.remove('saved');},1400);
+  }
+
+  // position menu with fixed coords — menu is a direct body child, no transform ancestor
+  function positionMenu(){
+    const btn=document.getElementById(`${id}_add`);if(!btn)return;
+    const r=btn.getBoundingClientRect();
+    const menuW=194;
+    const menuH=80;
+    const spaceBelow=window.innerHeight-r.bottom;
+    menu.style.position='fixed';
+    if(spaceBelow>=menuH+8){
+      menu.style.top=(r.bottom+6)+'px';
+      menu.style.bottom='auto';
+    } else {
+      menu.style.top=(r.top-menuH-6)+'px';
+      menu.style.bottom='auto';
+    }
+    const left=Math.max(8, r.right-menuW);
+    menu.style.left=left+'px';
+    menu.style.right='auto';
+  }
+  document.getElementById(`${id}_add`).addEventListener('click',(e)=>{
+    e.stopPropagation();
+    // update cal label before showing
+    if(getCalIdFn){
+      const calId=getCalIdFn();
+      const cal=cals.find(x=>x.id===calId);
+      const lbl=document.getElementById(`${id}_calOptLabel`);
+      const opt=document.getElementById(`${id}_toCal`);
+      if(lbl&&cal){lbl.textContent='Salvar na paleta: '+(cal.emoji?cal.emoji+' ':'')+cal.name;opt.classList.remove('disabled');}
+    }
+    if(!menu.classList.contains('open')) positionMenu();
+    menu.classList.toggle('open');
+  });
+  // close menu on outside click
+  document.addEventListener('click',()=>menu.classList.remove('open'),{capture:true,passive:true});
+  menu.addEventListener('click',e=>e.stopPropagation());
+
+  // option 1: save to presets
+  document.getElementById(`${id}_toPreset`).addEventListener('click',()=>{
+    const hex=currentHex;
+    menu.classList.remove('open');
+    saveCustomColor(hex);
+    if(!pp.querySelector(`[data-custom="${hex}"]`)){
+      const s=document.createElement('div');s.className='cp-swatch';s.style.background=hex;s.setAttribute('data-custom',hex);
+      s.addEventListener('click',()=>syncColor(hex));
+      pp.appendChild(s);
+    }
+    buildSavedStrip(id,syncColor);
+    flashBtn(true);
+  });
+
+  // option 2: save to calendar palette
+  document.getElementById(`${id}_toCal`).addEventListener('click',()=>{
+    if(!getCalIdFn)return;
+    const calId=getCalIdFn();
+    const cal=cals.find(x=>x.id===calId);
+    if(!cal)return;
+    menu.classList.remove('open');
+    const hex=currentHex;
+    if(!cal.palette)cal.palette=[];
+    // avoid duplicates
+    if(!cal.palette.some(e=>e.hex===hex)){
+      cal.palette.push({hex,label:''});
+      svCals();
+      // rebuild palette section for open ev/task pickers
+      ['evPaletteSection','taskPaletteSection'].forEach(secId=>{
+        const sec=document.getElementById(secId);
+        if(sec&&sec.innerHTML!==''){
+          const isEv=secId.startsWith('ev');
+          const curCal=isEv?selEvCal:selTaskCal;
+          const setCb=isEv?c=>{evColor=c;updCP('evCP',c);}:c=>{taskColor=c;updCP('taskCP',c);};
+          buildPaletteSection(secId,curCal,setCb);
+        }
+      });
+      // if editing the cal itself, rebuild its inline palette editor
+      if(id==='editCalCP'&&typeof getEditCalPalette!=='undefined'){
+        getEditCalPalette=buildCalPaletteEditor('editCalPaletteEditor',cal.palette||[]);
+      }
+    }
+    flashBtn(true);
+  });
+
+  // preset swatches
   const pp=document.getElementById(`${id}_p`);
-  PRESETS.forEach(col=>{
+  const allPresets=[...PRESETS,...customColors.filter(x=>!PRESETS.includes(x))];
+  allPresets.forEach(col=>{
     const s=document.createElement('div');s.className='cp-swatch'+(col===cur?' sel':'');s.style.background=col;
-    s.addEventListener('click',()=>{cb(col);pp.querySelectorAll('.cp-swatch').forEach(x=>x.classList.remove('sel'));s.classList.add('sel');document.getElementById(`${id}_n`).value=col;document.getElementById(`${id}_h`).value=col;document.getElementById(`${id}_pv`).style.background=col;});
+    s.addEventListener('click',()=>syncColor(col));
     pp.appendChild(s);
   });
-  document.getElementById(`${id}_n`).addEventListener('input',e=>{const v=e.target.value;cb(v);document.getElementById(`${id}_h`).value=v;document.getElementById(`${id}_pv`).style.background=v;pp.querySelectorAll('.cp-swatch').forEach(x=>x.classList.remove('sel'));});
-  document.getElementById(`${id}_h`).addEventListener('input',e=>{let v=e.target.value;if(!v.startsWith('#'))v='#'+v;if(validHex(v)){cb(v);document.getElementById(`${id}_n`).value=v;document.getElementById(`${id}_pv`).style.background=v;}});
+
+  // native color input
+  document.getElementById(`${id}_n`).addEventListener('input',e=>syncColor(e.target.value,true));
+
+  // hex input
+  document.getElementById(`${id}_h`).addEventListener('input',e=>{
+    let v=e.target.value;if(!v.startsWith('#'))v='#'+v;
+    if(validHex(v))syncColor(v);
+  });
+
+  buildSavedStrip(id,syncColor);
+}
+
+function buildSavedStrip(id,syncColor){
+  const strip=document.getElementById(`${id}_saved`);if(!strip)return;
+  // clear old dots
+  strip.querySelectorAll('.cp-saved-dot').forEach(x=>x.remove());
+  customColors.forEach(hex=>{
+    const s=document.createElement('div');s.className='cp-swatch cp-saved-dot';s.style.background=hex;s.title=hex;
+    // right click / long press removes
+    s.addEventListener('contextmenu',e=>{e.preventDefault();customColors=customColors.filter(x=>x!==hex);localStorage.setItem('tb2_customColors',JSON.stringify(customColors));buildSavedStrip(id,syncColor);});
+    s.addEventListener('click',()=>syncColor(hex));
+    strip.appendChild(s);
+  });
+  strip.style.display=customColors.length?'flex':'none';
 }
 function updCP(id,cur){
   const n=document.getElementById(`${id}_n`),h=document.getElementById(`${id}_h`),pv=document.getElementById(`${id}_pv`);
@@ -2267,7 +2522,7 @@ function openNewEv(date,start,end){
   selEvCal=cals[0]?.id||null;
   evColor=cals[0]?.color||PRESETS[0];
   buildCalOpts('evCalOpts',selEvCal,id=>{selEvCal=id;const c=cals.find(x=>x.id===id);if(c){evColor=c.color;updCP('evCP',evColor);}buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});});
-  buildCP('evCP',evColor,c=>{evColor=c;});
+  buildCP('evCP',evColor,c=>{evColor=c;},()=>selEvCal);
   buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   buildEmoji('evEmojiRow',EMOJIS,null,e=>{evEmoji=e;});
   document.getElementById('evEmojiNone').classList.add('on');
@@ -2288,7 +2543,7 @@ function openEditEv(ev){
   document.getElementById('evRepeatEndRow').style.display=(ev.repeat&&ev.repeat!=='none')?'block':'none';
   document.getElementById('evRepeatEnd').value=ev.repeatEnd||'';
   selEvCal=ev.calId||cals[0]?.id||null;evColor=ev.color||PRESETS[0];
-  buildCalOpts('evCalOpts',selEvCal,id=>{selEvCal=id;buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});});buildCP('evCP',evColor,c=>{evColor=c;});
+  buildCalOpts('evCalOpts',selEvCal,id=>{selEvCal=id;buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});});buildCP('evCP',evColor,c=>{evColor=c;},()=>selEvCal);
   buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   buildEmoji('evEmojiRow',EMOJIS,ev.emoji||null,e=>{evEmoji=e;document.getElementById('evEmojiNone').classList.remove('on');document.getElementById('evEmojiCustomBtn').classList.remove('on');document.getElementById('evEmojiCustomInput').classList.remove('visible');});
   // if emoji is custom (not in preset list), show in custom input
@@ -2335,7 +2590,7 @@ function openNewTask(date){
   document.getElementById('taskRepeatEnd').value='';
   selTaskCal=cals[0]?.id||null;taskColor=PRESETS[1];selPri='med';
   buildCalOpts('taskCalOpts',selTaskCal,id=>{selTaskCal=id;buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});});
-  buildCP('taskCP',taskColor,c=>{taskColor=c;});
+  buildCP('taskCP',taskColor,c=>{taskColor=c;},()=>selTaskCal);
   buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   buildEmoji('taskEmojiRow',EMOJIS,null,e=>{taskEmoji=e;});
   document.getElementById('taskEmojiCustomBtn').classList.remove('on');
@@ -2354,7 +2609,7 @@ function openEditTask(t){
   document.getElementById('taskRepeatEnd').value=t.repeatEnd||'';
   selTaskCal=t.calId||cals[0]?.id||null;taskColor=t.color||PRESETS[1];selPri=t.priority||'med';
   buildCalOpts('taskCalOpts',selTaskCal,id=>{selTaskCal=id;buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});});
-  buildCP('taskCP',taskColor,c=>{taskColor=c;});
+  buildCP('taskCP',taskColor,c=>{taskColor=c;},()=>selTaskCal);
   buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   buildEmoji('taskEmojiRow',EMOJIS,t.emoji||null,e=>{taskEmoji=e;document.getElementById('taskEmojiNone').classList.remove('on');document.getElementById('taskEmojiCustomBtn').classList.remove('on');document.getElementById('taskEmojiCustomInput').classList.remove('visible');});
   const isPreset=EMOJIS.includes(t.emoji);
@@ -2529,7 +2784,7 @@ function openEditCal(calId){
   selEditCalEmoji=cal.emoji||EMOJIS[0];editCalColor=cal.color||PRESETS[0];
   document.getElementById('editCalName').value=cal.name;
   buildEmoji('editCalEmojiRow',EMOJIS,selEditCalEmoji,e=>selEditCalEmoji=e);
-  buildCP('editCalCP',editCalColor,c=>{editCalColor=c;});
+  buildCP('editCalCP',editCalColor,c=>{editCalColor=c;},()=>editCalId);
   getEditCalPalette=buildCalPaletteEditor('editCalPaletteEditor',cal.palette||[]);
   populateParentSel('editCalParentSel',calId,cal.parentId||'');
   openSh('editCalSheet');
@@ -2560,7 +2815,6 @@ function deleteCal(){
 // returns a getter fn that returns current palette array
 function buildCalPaletteEditor(wrapperId, palette){
   const wrap=document.getElementById(wrapperId);if(!wrap)return()=>[];
-  // working copy
   let colors=[...palette.map(c=>({hex:c.hex,label:c.label}))];
 
   function render(){
@@ -2571,8 +2825,6 @@ function buildCalPaletteEditor(wrapperId, palette){
     colors.forEach((c,i)=>{
       const entry=document.createElement('div');
       entry.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;';
-
-      // color circle (click = native color picker)
       const dotWrap=document.createElement('div');dotWrap.style.cssText='position:relative;width:36px;height:36px;';
       const dot=document.createElement('div');
       dot.style.cssText=`width:36px;height:36px;border-radius:50%;background:${c.hex};box-shadow:0 0 0 2px var(--bg),0 0 0 3px #ccc;cursor:pointer;transition:transform .15s;`;
@@ -2581,42 +2833,34 @@ function buildCalPaletteEditor(wrapperId, palette){
       const inp=document.createElement('input');inp.type='color';inp.value=c.hex;
       inp.style.cssText='position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none;padding:0;';
       inp.addEventListener('input',e=>{c.hex=e.target.value;dot.style.background=c.hex;});
+      inp.addEventListener('change',()=>{});
       dotWrap.appendChild(dot);dotWrap.appendChild(inp);
-
-      // remove button
       const rm=document.createElement('button');rm.type='button';rm.textContent='×';
       rm.style.cssText='position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;border:none;background:#e0dbd5;color:#666;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;';
       rm.addEventListener('click',()=>{colors.splice(i,1);render();});
-      dotWrap.appendChild(rm);dotWrap.style.position='relative';
-
-      // label input
+      dotWrap.appendChild(rm);
       const lbl=document.createElement('input');lbl.type='text';lbl.value=c.label;lbl.placeholder='legenda';
       lbl.style.cssText='width:44px;font-size:10px;text-align:center;border:none;border-bottom:1px solid var(--border);background:none;outline:none;color:var(--text);padding:1px 0;';
       lbl.addEventListener('input',()=>c.label=lbl.value);
-
       entry.appendChild(dotWrap);entry.appendChild(lbl);
       grid.appendChild(entry);
     });
 
-    // add button (max 5)
     if(colors.length<5){
+      const addEntry=document.createElement('div');addEntry.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;';
       const addBtn=document.createElement('div');
-      addBtn.style.cssText='width:36px;height:36px;border-radius:50%;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--muted);cursor:pointer;margin-top:0;transition:all .15s;flex-shrink:0;';
+      addBtn.style.cssText='width:36px;height:36px;border-radius:50%;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--muted);cursor:pointer;transition:all .15s;flex-shrink:0;';
       addBtn.textContent='＋';
       addBtn.addEventListener('mouseenter',()=>{addBtn.style.borderColor='var(--accent)';addBtn.style.color='var(--accent)';});
       addBtn.addEventListener('mouseleave',()=>{addBtn.style.borderColor='var(--border)';addBtn.style.color='var(--muted)';});
-      addBtn.addEventListener('click',()=>{
-        colors.push({hex:PRESETS[colors.length%PRESETS.length],label:''});render();
-      });
-      const addEntry=document.createElement('div');addEntry.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:0;';
+      addBtn.addEventListener('click',()=>{colors.push({hex:PRESETS[colors.length%PRESETS.length],label:''});render();});
       addEntry.appendChild(addBtn);grid.appendChild(addEntry);
     }
-
     wrap.appendChild(grid);
   }
 
   render();
-  return ()=>colors.filter(c=>c.hex); // getter
+  return ()=>colors.filter(c=>c.hex);
 }
 
 let getNewCalPalette=()=>[];
@@ -2637,23 +2881,42 @@ function renderPaletteMgr(){
     // header
     const hdr=document.createElement('div');hdr.className='palette-card-hdr';
     const nameInput=document.createElement('input');nameInput.className='palette-card-name-input';nameInput.value=pal.name;nameInput.placeholder='Nome da paleta';
-    nameInput.addEventListener('change',()=>{pal.name=nameInput.value.trim()||pal.name;svPalettes();});
+    nameInput.addEventListener('input',()=>pal.name=nameInput.value.trim()||pal.name);
     const acts=document.createElement('div');acts.className='palette-card-acts';
+    // Save button per palette
+    const saveBtn=document.createElement('button');saveBtn.className='palette-card-act';
+    saveBtn.style.cssText='background:var(--accent);color:#fff;border:none;border-radius:14px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;';
+    saveBtn.textContent='Salvar';
+    saveBtn.addEventListener('click',()=>{
+      svPalettes();
+      saveBtn.textContent='✓ Salvo!';saveBtn.style.background='#6b8f5e';
+      setTimeout(()=>{saveBtn.textContent='Salvar';saveBtn.style.background='var(--accent)';},1600);
+    });
     const delBtn=document.createElement('button');delBtn.className='palette-card-act danger';delBtn.textContent='🗑';delBtn.title='Excluir paleta';
-    delBtn.addEventListener('click',()=>{globalPalettes.splice(pi,1);svPalettes();renderPaletteMgr();});
-    acts.appendChild(delBtn);hdr.appendChild(nameInput);hdr.appendChild(acts);
+    delBtn.addEventListener('click',()=>{if(confirm(`Excluir "${pal.name}"?`)){globalPalettes.splice(pi,1);svPalettes();renderPaletteMgr();}});
+    acts.appendChild(saveBtn);acts.appendChild(delBtn);
+    hdr.appendChild(nameInput);hdr.appendChild(acts);
     // swatches
     const sw=document.createElement('div');sw.className='palette-swatches';
     pal.colors.forEach((c,ci)=>{
       const entry=document.createElement('div');entry.className='palette-entry';
       const dot=document.createElement('div');dot.className='palette-entry-swatch';dot.style.background=c.hex;dot.style.borderColor=c.hex==='#ffffff'?'#ddd':'transparent';
-      // click to edit color
+      dot.style.position='relative';
       const colorInp=document.createElement('input');colorInp.type='color';colorInp.value=c.hex;colorInp.style.cssText='position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;top:0;left:0;';
       colorInp.addEventListener('input',e=>{c.hex=e.target.value;dot.style.background=c.hex;});
       colorInp.addEventListener('change',()=>svPalettes());
-      dot.style.position='relative';dot.appendChild(colorInp);
+      dot.appendChild(colorInp);
+      // delete color button
+      const delColor=document.createElement('button');
+      delColor.style.cssText='position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:#c0735e;color:#fff;border:none;font-size:9px;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0;line-height:1;z-index:2;';
+      delColor.textContent='×';delColor.title='Remover cor';
+      delColor.addEventListener('click',e=>{e.stopPropagation();pal.colors.splice(ci,1);svPalettes();renderPaletteMgr();});
+      dot.appendChild(delColor);
+      dot.addEventListener('mouseenter',()=>delColor.style.display='flex');
+      dot.addEventListener('mouseleave',()=>delColor.style.display='none');
       const labelInput=document.createElement('input');labelInput.className='palette-entry-label-input';labelInput.value=c.label;labelInput.placeholder='legenda';
-      labelInput.addEventListener('change',()=>{c.label=labelInput.value;svPalettes();});
+      labelInput.addEventListener('input',()=>c.label=labelInput.value);
+      labelInput.addEventListener('change',()=>svPalettes());
       entry.appendChild(dot);entry.appendChild(labelInput);sw.appendChild(entry);
     });
     // add color button if < 8 colors
@@ -2674,6 +2937,13 @@ document.getElementById('addPaletteBtn').addEventListener('click',()=>{
     {hex:'#6b8f5e',label:''},{hex:'#c97d5a',label:''},{hex:'#7a8fb5',label:''},{hex:'#a57fb0',label:''},{hex:'#c0a96a',label:''}
   ]});
   svPalettes();renderPaletteMgr();
+});
+
+document.getElementById('saveAllPalettesBtn').addEventListener('click',()=>{
+  svPalettes();
+  const btn=document.getElementById('saveAllPalettesBtn');
+  btn.textContent='✓ Salvo!';btn.style.background='#6b8f5e';
+  setTimeout(()=>{btn.textContent='💾 Salvar tudo';btn.style.background='var(--accent)';},1800);
 });
 
 // Render palette swatches inside cal sheet (for agenda palette assignment)
@@ -3203,6 +3473,101 @@ document.getElementById('miniPrev').addEventListener('click',()=>{miniDate.setMo
 document.getElementById('miniNext').addEventListener('click',()=>{miniDate.setMonth(miniDate.getMonth()+1);renderMiniCal();});
 document.getElementById('newCalBtn').addEventListener('click',openNewCal);
 document.getElementById('openPaletteBtn').addEventListener('click',openPaletteSheet);
+
+// ══════════════════════════════════════════════
+// ICS IMPORT
+// ══════════════════════════════════════════════
+let importedEvents=[];
+let importSelCal=null;
+
+function openImportSheet(){
+  importedEvents=[];
+  importSelCal=cals[0]?.id||null;
+  document.getElementById('importFileName').textContent='';
+  document.getElementById('importPreview').style.display='none';
+  document.getElementById('importDupeRow').style.display='none';
+  document.getElementById('importDropZone').style.borderColor='var(--border)';
+  const btn=document.getElementById('doImportBtn');btn.style.opacity='.4';btn.style.pointerEvents='none';
+  document.getElementById('importFileInput').value='';
+  buildCalOpts('importCalOpts',importSelCal,id=>importSelCal=id);
+  openSh('importSheet');closeSb();
+}
+
+function parseICS(text){
+  const events=[];
+  const lines=text.replace(/\r\n /g,'').replace(/\r\n\t/g,'').split(/\r\n|\n|\r/);
+  let ev=null;
+  for(const raw of lines){
+    const line=raw.trim();
+    if(line==='BEGIN:VEVENT'){ev={};}
+    else if(line==='END:VEVENT'){if(ev&&ev.title&&ev.date)events.push(ev);ev=null;}
+    else if(ev){
+      if(line.startsWith('SUMMARY')){ev.title=line.replace(/^SUMMARY[^:]*:/,'').replace(/\\,/g,',').replace(/\\n/g,' ').trim();}
+      else if(line.startsWith('DTSTART')){
+        const val=line.replace(/^DTSTART[^:]*:/,'').trim();
+        if(val.length===8){ev.date=`${val.slice(0,4)}-${val.slice(4,6)}-${val.slice(6,8)}`;ev.allDay=true;}
+        else{ev.date=`${val.slice(0,4)}-${val.slice(4,6)}-${val.slice(6,8)}`;ev.start=`${val.slice(9,11)}:${val.slice(11,13)}`;ev.allDay=false;}
+      }
+      else if(line.startsWith('DTEND')){
+        const val=line.replace(/^DTEND[^:]*:/,'').trim();
+        if(val.length>8)ev.end=`${val.slice(9,11)}:${val.slice(11,13)}`;
+      }
+      else if(line.startsWith('DESCRIPTION')){ev.notes=line.replace(/^DESCRIPTION[^:]*:/,'').replace(/\\n/g,'\n').replace(/\\,/g,',').trim();}
+      else if(line.startsWith('UID')){ev.uid=line.replace(/^UID:/,'').trim();}
+    }
+  }
+  return events;
+}
+
+function renderImportPreview(events){
+  const list=document.getElementById('importPreviewList');
+  list.innerHTML='';
+  events.slice(0,50).forEach(ev=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #f0ece6;font-size:12px;';
+    const dot=document.createElement('div');dot.style.cssText='width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;';
+    const info=document.createElement('div');info.style.cssText='flex:1;min-width:0;';
+    info.innerHTML=`<div style="font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ev.title}</div><div style="color:var(--muted);font-size:11px;">${ev.date}${ev.start?' · '+ev.start+(ev.end?'–'+ev.end:''):' · Dia inteiro'}</div>`;
+    row.appendChild(dot);row.appendChild(info);list.appendChild(row);
+  });
+  if(events.length>50){
+    const more=document.createElement('div');more.style.cssText='padding:8px 10px;font-size:11px;color:var(--muted);font-style:italic;';
+    more.textContent=`+ ${events.length-50} eventos não exibidos...`;list.appendChild(more);
+  }
+  document.getElementById('importStats').textContent=`${events.length} evento${events.length!==1?'s':''} encontrado${events.length!==1?'s':''} no arquivo.`;
+  document.getElementById('importPreview').style.display='block';
+  document.getElementById('importDupeRow').style.display='block';
+  const btn=document.getElementById('doImportBtn');btn.style.opacity='1';btn.style.pointerEvents='all';
+}
+
+function doImport(){
+  const skipDupes=document.getElementById('importSkipDupes').checked;
+  const calColor=(cals.find(c=>c.id===importSelCal)||cals[0]||{}).color||'#6b8f5e';
+  let added=0,skipped=0;
+  const toAdd=[];
+  importedEvents.forEach(ev=>{
+    if(skipDupes&&evs.some(e=>e.title===ev.title&&e.date===ev.date)){skipped++;return;}
+    toAdd.push({id:uid(),title:ev.title,date:ev.date,start:ev.start||'00:00',end:ev.end||'23:59',allDay:ev.allDay||false,calId:importSelCal,color:calColor,notes:ev.notes||'',repeat:'none',repeatEnd:''});
+    added++;
+  });
+  toAdd.forEach(e=>evs.push(e));
+  sv('tb2_evs',evs);renderAll();closeSh('importSheet');
+  setTimeout(()=>alert(`✅ ${added} evento${added!==1?'s':''} importado${added!==1?'s':''}!${skipped?' '+skipped+' ignorado'+(skipped!==1?'s':'')+'(duplicados).':''}`),300);
+}
+
+document.getElementById('syncBtn').addEventListener('click',manualSync);
+document.getElementById('openImportBtn').addEventListener('click',openImportSheet);
+document.getElementById('closeImportSheet').addEventListener('click',()=>closeSh('importSheet'));
+document.getElementById('doImportBtn').addEventListener('click',doImport);
+document.getElementById('importDropZone').addEventListener('click',()=>document.getElementById('importFileInput').click());
+document.getElementById('importFileInput').addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  document.getElementById('importFileName').textContent=file.name;
+  document.getElementById('importDropZone').style.borderColor='var(--accent)';
+  const reader=new FileReader();
+  reader.onload=ev=>{importedEvents=parseICS(ev.target.result);renderImportPreview(importedEvents);};
+  reader.readAsText(file);
+});
 document.getElementById('closeReadingSheet').addEventListener('click',()=>closeSh('readingSheet'));
 document.getElementById('saveReadingBtn').addEventListener('click',saveReading);
 // Star picker interactions
