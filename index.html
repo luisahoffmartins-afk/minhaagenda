@@ -25,7 +25,7 @@
   --accent2-light:#faf0eb;
   --blush:#e8c5b8;
   --cream:#fdf6ee;
-  --hour-h:80px;--time-col:0px;
+  --hour-h:80px;--time-col:44px;
   --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
   --radius:12px;
 }
@@ -105,10 +105,10 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .grid-scroll::-webkit-scrollbar{width:4px;}
 .grid-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 .grid-body{display:flex;}
-.time-gutter{display:none;}
-.tg-hdr{display:none;}
-.time-slot{display:none;}
-.time-lbl{display:none;}
+.time-gutter{width:var(--time-col);flex-shrink:0;}
+.tg-hdr{width:var(--time-col);flex-shrink:0;}
+.time-slot{height:var(--hour-h);display:flex;align-items:flex-start;padding-top:3px;justify-content:flex-end;padding-right:8px;}
+.time-lbl{font-size:10px;color:var(--muted);font-weight:400;white-space:nowrap;line-height:1;}
 .day-cols{flex:1;display:flex;}
 .day-col{flex:1;border-left:1px solid #e8e4dd;position:relative;min-height:calc(var(--hour-h) * 24);}
 .day-col:first-child{border-left:none;}
@@ -879,7 +879,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
   .period-label{font-size:20px;}
 }
 @media(min-width:700px){
-  :root{--hour-h:90px;--time-col:0px;}
+  :root{--hour-h:90px;--time-col:44px;}
   .day-hdr .dn{font-size:22px;width:38px;height:38px;}
   .ev-block{font-size:12px;}
   .ev-title{font-size:12px;}
@@ -947,6 +947,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <div class="allday-band" id="alldayBandWeek"></div>
     <div class="grid-scroll" id="gsWeek">
       <div class="grid-body">
+        <div class="time-gutter" id="tgWeek"></div>
         <div class="day-cols" id="dcWeek" style="flex:1;"></div>
       </div>
     </div>
@@ -1972,7 +1973,7 @@ function placeEvBlock(ev,col,gs){
   else timeEl.textContent='Dia inteiro';
   const resize=document.createElement('div');resize.className='ev-resize';
   b.appendChild(titleEl);b.appendChild(timeEl);b.appendChild(resize);
-  b.addEventListener('click',e=>{e.stopPropagation();openEvDetail(ev);});
+  b.addEventListener('click',e=>{e.stopPropagation();if(!b._wasDragged)openEditEv(ev);b._wasDragged=false;});
   b.addEventListener('touchend',e=>e.stopPropagation());
   makeDrag(b,ev,gs);makeResize(b,ev,gs);
   col.appendChild(b);
@@ -1981,7 +1982,7 @@ function makeDrag(b,ev,gs){
   let sY,sT,dr=false,mv=false;
   function start(cy){dr=true;mv=false;sY=cy;sT=parseInt(b.style.top);b.style.zIndex=50;b.style.opacity='.8';}
   function move(cy){if(!dr)return;const dy=cy-sY;if(Math.abs(dy)>4)mv=true;const nT=Math.max(0,sT+dy);b.style.top=nT+'px';const nm=Math.round((nT/HH*60)/15)*15,dur=t2m(ev.end)-t2m(ev.start);ev.start=fmtTime(Math.floor(nm/60),nm%60);ev.end=fmtTime(Math.floor((nm+dur)/60),(nm+dur)%60);b.querySelector('.ev-time').textContent=`${ev.start}–${ev.end}`;}
-  function end(){if(!dr)return;dr=false;b.style.zIndex=5;b.style.opacity='1';if(mv){sv('tb2_evs',evs);renderAll();}}
+  function end(){if(!dr)return;dr=false;b.style.zIndex=5;b.style.opacity='1';if(mv){b._wasDragged=true;sv('tb2_evs',evs);renderAll();}}
   b.addEventListener('touchstart',e=>{if(e.target.closest('.ev-resize'))return;start(e.touches[0].clientY);e.preventDefault();},{passive:false});
   b.addEventListener('touchmove',e=>{move(e.touches[0].clientY);e.preventDefault();},{passive:false});
   b.addEventListener('touchend',end);
@@ -2022,7 +2023,7 @@ function buildAlldayBand(bandEl, dates){
       const txt=document.createElement('span');txt.textContent=ev.title;
       txt.style.cssText='overflow:hidden;text-overflow:ellipsis;';
       item.appendChild(dot);item.appendChild(txt);
-      item.addEventListener('click',()=>openEvDetail(ev));
+      item.addEventListener('click',()=>openEditEv(ev));
       col.appendChild(item);hasAny=true;
     });
 
@@ -2038,7 +2039,7 @@ function buildAlldayBand(bandEl, dates){
       const txt=document.createElement('span');txt.textContent=t.title;
       txt.style.cssText=`overflow:hidden;text-overflow:ellipsis;${t.done?'text-decoration:line-through;':''}`;
       item.appendChild(chk);item.appendChild(txt);
-      item.addEventListener('click',()=>openTaskDetail(t));
+      item.addEventListener('click',()=>openEditTask(t));
       col.appendChild(item);hasAny=true;
     });
 
@@ -2094,7 +2095,8 @@ function renderHabitChipsInCol(col,date){
 // VIEW: WEEK
 // ══════════════════════════════════════════════
 function renderWeek(){
-  const hdr=document.getElementById('dayHdrWeek');hdr.innerHTML='';
+  buildTG('tgWeek');
+  const hdr=document.getElementById('dayHdrWeek');hdr.innerHTML='<div class="tg-hdr"></div>';
   const dc=document.getElementById('dcWeek');dc.innerHTML='';
   const today=fmtDate(new Date());
   for(let i=0;i<7;i++){
@@ -2162,7 +2164,7 @@ function renderQuad(){
       const item=document.createElement('div');
       item.style.cssText=`display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid #f0ece6;cursor:pointer;`;
       item.innerHTML=`<div style="width:3px;height:28px;border-radius:2px;background:${color};flex-shrink:0;"></div><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;color:${color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ev.title}</div><div style="font-size:10px;color:var(--muted);">${ev.allDay?'Dia inteiro':ev.start+'–'+ev.end}</div></div>`;
-      item.addEventListener('click',()=>openEvDetail(ev));
+      item.addEventListener('click',()=>openEditEv(ev));
       qs.appendChild(item);
     });
 
@@ -2178,7 +2180,7 @@ function renderQuad(){
       txt.style.cssText=`flex:1;font-size:12px;font-weight:500;color:${color};${t.done?'text-decoration:line-through;opacity:.6;':''}white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
       txt.textContent=t.title;
       item.appendChild(chk);item.appendChild(txt);
-      item.addEventListener('click',()=>openTaskDetail(t));
+      item.addEventListener('click',()=>openEditTask(t));
       qs.appendChild(item);
     });
 
@@ -2322,7 +2324,7 @@ function renderHWeek(){
         const txt=document.createElement('span');txt.className='hweek-chip-text';
         txt.textContent=(ev.allDay?'':''+ev.start+' ')+ev.title;
         chip.appendChild(dot);chip.appendChild(txt);
-        chip.addEventListener('click',()=>openEvDetail(ev));chips.appendChild(chip);
+        chip.addEventListener('click',()=>openEditEv(ev));chips.appendChild(chip);
       });
       dayTasks.forEach(t=>{
         const color=t.color||(cals.find(c=>c.id===t.calId)||{}).color||'#70757a';
@@ -2464,7 +2466,7 @@ function buildTaskCard(t){
   const db=document.createElement('button');db.className='task-act';db.textContent='🗑';db.addEventListener('click',e=>{e.stopPropagation();tasks=tasks.filter(x=>x.id!==t.id);sv('tb2_tasks',tasks);renderTasks();renderAll();});
   acts.appendChild(eb);acts.appendChild(db);
   card.appendChild(cb);card.appendChild(body);card.appendChild(acts);
-  card.addEventListener('click',()=>openTaskDetail(t));
+  card.addEventListener('click',()=>openEditTask(t));
   return card;
 }
 
