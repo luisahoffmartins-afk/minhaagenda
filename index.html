@@ -1945,10 +1945,13 @@ function buildDayColumn(date, colEl, gsEl){
   for(let h=0;h<24;h++){const r=document.createElement('div');r.className='hour-row';r.innerHTML='<div class="half-line"></div>';colEl.appendChild(r);}
   // now line
   if(fmtDate(date)===fmtDate(new Date())) placeNowLine(colEl);
-  // click/tap
+  // click/tap on empty area
   colEl.addEventListener('click',e=>{if(e.target.closest('.ev-block'))return;if(!isD())return;openQuickPopup(fmtDate(date));});
   let lt=0;
-  colEl.addEventListener('touchend',e=>{if(e.target.closest('.ev-block'))return;const now=Date.now();if(now-lt<400){openQuickPopup(fmtDate(date));}lt=now;},{passive:false});
+  colEl.addEventListener('touchend',e=>{
+    if(e.target.closest('.ev-block'))return;
+    const now=Date.now();if(now-lt<400){openQuickPopup(fmtDate(date));}lt=now;
+  },{passive:false});
   // place events (timed only — all-day go to band)
   const vis=new Set(cals.filter(c=>c.vis).map(c=>c.id));
   evs.filter(ev=>ev.date===fmtDate(date)&&(!ev.calId||vis.has(ev.calId))&&!ev.allDay).forEach(ev=>placeEvBlock(ev,colEl,gsEl));
@@ -1988,26 +1991,30 @@ function makeDrag(b,ev,gs){
     ev.start=fmtTime(Math.floor(nm/60),nm%60);ev.end=fmtTime(Math.floor((nm+dur)/60),(nm+dur)%60);
     b.querySelector('.ev-time').textContent=`${ev.start}–${ev.end}`;
   }
-  function end(isTouchEnd){
-    if(!dragging)return;
-    dragging=false;b.style.zIndex=5;b.style.opacity='1';
-    if(moved){sv('tb2_evs',evs);renderAll();}
-    else if(isTouchEnd){openEditEv(ev);}
-  }
+  // end() inlined in event listeners below
   // touch
-  b.addEventListener('touchstart',e=>{if(e.target.closest('.ev-resize'))return;start(e.touches[0].clientY);e.preventDefault();},{passive:false});
-  b.addEventListener('touchmove',e=>{move(e.touches[0].clientY);e.preventDefault();},{passive:false});
-  b.addEventListener('touchend',e=>{e.stopPropagation();end(true);},{passive:false});
+  b.addEventListener('touchstart',e=>{if(e.target.closest('.ev-resize'))return;start(e.touches[0].clientY);e.stopPropagation();e.preventDefault();},{passive:false});
+  b.addEventListener('touchmove',e=>{move(e.touches[0].clientY);e.stopPropagation();e.preventDefault();},{passive:false});
+  b.addEventListener('touchend',e=>{
+    e.stopPropagation();
+    e.preventDefault();
+    dragging=false;
+    b.style.zIndex=5;b.style.opacity='1';
+    if(moved){sv('tb2_evs',evs);renderAll();}
+    else{openEditEv(ev);}
+  },{passive:false});
   // mouse
   b.addEventListener('mousedown',e=>{
     if(e.target.closest('.ev-resize'))return;
-    start(e.clientY);e.preventDefault();
+    start(e.clientY);e.preventDefault();e.stopPropagation();
     const mm=e2=>move(e2.clientY);
     const mu=()=>{
-      end(false);
-      if(!moved)openEditEv(ev);
+      const didMove=moved;
+      dragging=false;b.style.zIndex=5;b.style.opacity='1';
       window.removeEventListener('mousemove',mm);
       window.removeEventListener('mouseup',mu);
+      if(didMove){sv('tb2_evs',evs);renderAll();}
+      else{openEditEv(ev);}
     };
     window.addEventListener('mousemove',mm);
     window.addEventListener('mouseup',mu);
