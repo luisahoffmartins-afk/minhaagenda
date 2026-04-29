@@ -1414,7 +1414,7 @@ let fabOpen=false,ctxCalId=null;
 // helpers
 function getWeekStart(d){const dt=new Date(d);dt.setDate(dt.getDate()-dt.getDay());dt.setHours(0,0,0,0);return dt;}
 function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
-function fmtDate(d){return d.toISOString().slice(0,10);}
+function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function fmtTime(h,m){return`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;}
 function t2m(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
 function uid(){return Math.random().toString(36).slice(2,9);}
