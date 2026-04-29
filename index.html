@@ -1479,12 +1479,12 @@ function svReading(){}
 // ══════════════════════════════════════════════
 // FIRESTORE SAVE FUNCTIONS
 // ══════════════════════════════════════════════
-async function svEvs(){setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','evs'),{list:evs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
-async function svTasks(){setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','tasks'),{list:tasks});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
-async function svHabits(){setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','habits'),{list:habits});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
-async function svHabitLogs(){setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','habitLogs'),{data:habitLogs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
-async function svCals(){setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','cals'),{list:cals});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
-async function svPalettes(){setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','palettes'),{list:globalPalettes});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
+async function svEvs(){_skip('evs');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','evs'),{list:evs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
+async function svTasks(){_skip('tasks');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','tasks'),{list:tasks});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
+async function svHabits(){_skip('habits');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','habits'),{list:habits});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
+async function svHabitLogs(){_skip('habitLogs');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','habitLogs'),{data:habitLogs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
+async function svCals(){_skip('cals');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','cals'),{list:cals});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
+async function svPalettes(){_skip('palettes');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','palettes'),{list:globalPalettes});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
 async function svNote(ds,text){
   setSyncStatus('syncing');
   try{
@@ -1506,15 +1506,45 @@ function sv(k,v){
 // ══════════════════════════════════════════════
 // FIRESTORE REAL-TIME LISTENERS
 // ══════════════════════════════════════════════
+// Flags para ignorar o snapshot de eco imediato após um save local
+const _skipNext={cals:0,evs:0,tasks:0,habits:0,habitLogs:0,readingBooks:0,palettes:0};
+function _skip(key){_skipNext[key]=Date.now();}
+function _shouldSkip(key){const t=_skipNext[key];if(t&&Date.now()-t<5000){_skipNext[key]=0;return true;}return false;}
+
 function initFirestoreListeners(){
-  onSnapshot(doc(db,'agenda','palettes'),s=>{if(s.exists()&&s.data().list){globalPalettes=s.data().list;}},()=>{});
-  onSnapshot(doc(db,'agenda','cals'),s=>{if(s.exists()&&s.data().list){cals=s.data().list;renderCalList();renderAll();}},()=>setSyncStatus('offline'));
-  onSnapshot(doc(db,'agenda','evs'),s=>{if(s.exists()&&s.data().list){evs=s.data().list;renderAll();}},()=>setSyncStatus('offline'));
-  onSnapshot(doc(db,'agenda','tasks'),s=>{if(s.exists()&&s.data().list){tasks=s.data().list;renderAll();if(curView==='tasks')renderTasks();}},()=>setSyncStatus('offline'));
-  onSnapshot(doc(db,'agenda','habits'),s=>{if(s.exists()&&s.data().list){habits=s.data().list;renderAll();if(curView==='habits')renderHabits();}},()=>setSyncStatus('offline'));
-  onSnapshot(doc(db,'agenda','habitLogs'),s=>{if(s.exists()&&s.data().data){habitLogs=s.data().data;renderAll();if(curView==='habits')renderHabits();}},()=>setSyncStatus('offline'));
-  onSnapshot(doc(db,'agenda','readingBooks'),s=>{if(s.exists()&&s.data().list){readingBooks=s.data().list;renderAll();}},()=>setSyncStatus('offline'));
-  onSnapshot(collection(db,'agenda_notes'),s=>{s.docChanges().forEach(c=>{if(c.type==='removed')delete notes[c.doc.id];else notes[c.doc.id]=c.doc.data().text||'';});renderAll();},()=>setSyncStatus('offline'));
+  onSnapshot(doc(db,'agenda','palettes'),s=>{
+    if(_shouldSkip('palettes'))return;
+    if(s.exists()&&s.data().list){globalPalettes=s.data().list;}
+  },()=>{});
+  onSnapshot(doc(db,'agenda','cals'),s=>{
+    if(_shouldSkip('cals'))return;
+    if(s.exists()&&s.data().list){cals=s.data().list;renderCalList();renderAll();}
+    else setSyncStatus('offline');
+  },()=>setSyncStatus('offline'));
+  onSnapshot(doc(db,'agenda','evs'),s=>{
+    if(_shouldSkip('evs'))return;
+    if(s.exists()&&s.data().list){evs=s.data().list;renderAll();}
+  },()=>setSyncStatus('offline'));
+  onSnapshot(doc(db,'agenda','tasks'),s=>{
+    if(_shouldSkip('tasks'))return;
+    if(s.exists()&&s.data().list){tasks=s.data().list;renderAll();if(curView==='tasks')renderTasks();}
+  },()=>setSyncStatus('offline'));
+  onSnapshot(doc(db,'agenda','habits'),s=>{
+    if(_shouldSkip('habits'))return;
+    if(s.exists()&&s.data().list){habits=s.data().list;renderAll();if(curView==='habits')renderHabits();}
+  },()=>setSyncStatus('offline'));
+  onSnapshot(doc(db,'agenda','habitLogs'),s=>{
+    if(_shouldSkip('habitLogs'))return;
+    if(s.exists()&&s.data().data){habitLogs=s.data().data;renderAll();if(curView==='habits')renderHabits();}
+  },()=>setSyncStatus('offline'));
+  onSnapshot(doc(db,'agenda','readingBooks'),s=>{
+    if(_shouldSkip('readingBooks'))return;
+    if(s.exists()&&s.data().list){readingBooks=s.data().list;renderAll();}
+  },()=>setSyncStatus('offline'));
+  onSnapshot(collection(db,'agenda_notes'),s=>{
+    s.docChanges().forEach(c=>{if(c.type==='removed')delete notes[c.doc.id];else notes[c.doc.id]=c.doc.data().text||'';});
+    renderAll();
+  },()=>setSyncStatus('offline'));
   setSyncStatus('ok');
   setTimeout(()=>{const o=document.getElementById('loadingOverlay');if(o)o.classList.add('hide');},600);
 }
@@ -2522,7 +2552,12 @@ function openNewEv(date,start,end){
   document.getElementById('evRepeatEnd').value='';
   selEvCal=cals[0]?.id||null;
   evColor=cals[0]?.color||PRESETS[0];
-  buildCalOpts('evCalOpts',selEvCal,id=>{selEvCal=id;const c=cals.find(x=>x.id===id);if(c){evColor=c.color;updCP('evCP',evColor);}buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});});
+  buildCalOpts('evCalOpts',selEvCal,id=>{
+    selEvCal=id;
+    const c=cals.find(x=>x.id===id);
+    if(c){evColor=c.color;updCP('evCP',evColor);}
+    buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
+  });
   buildCP('evCP',evColor,c=>{evColor=c;},()=>selEvCal);
   buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   buildEmoji('evEmojiRow',EMOJIS,null,e=>{evEmoji=e;});
@@ -2543,8 +2578,15 @@ function openEditEv(ev){
   document.getElementById('evRepeat').value=ev.repeat||'none';
   document.getElementById('evRepeatEndRow').style.display=(ev.repeat&&ev.repeat!=='none')?'block':'none';
   document.getElementById('evRepeatEnd').value=ev.repeatEnd||'';
-  selEvCal=ev.calId||cals[0]?.id||null;evColor=ev.color||PRESETS[0];
-  buildCalOpts('evCalOpts',selEvCal,id=>{selEvCal=id;buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});});buildCP('evCP',evColor,c=>{evColor=c;},()=>selEvCal);
+  selEvCal=ev.calId||cals[0]?.id||null;
+  {const _ec=cals.find(c=>c.id===selEvCal);evColor=ev.color||_ec?.color||PRESETS[0];}
+  buildCalOpts('evCalOpts',selEvCal,id=>{
+    selEvCal=id;
+    const c=cals.find(x=>x.id===id);
+    if(c&&!ev.color){evColor=c.color;updCP('evCP',evColor);}
+    buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
+  });
+  buildCP('evCP',evColor,c=>{evColor=c;},()=>selEvCal);
   buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   buildEmoji('evEmojiRow',EMOJIS,ev.emoji||null,e=>{evEmoji=e;document.getElementById('evEmojiNone').classList.remove('on');document.getElementById('evEmojiCustomBtn').classList.remove('on');document.getElementById('evEmojiCustomInput').classList.remove('visible');});
   // if emoji is custom (not in preset list), show in custom input
@@ -2589,8 +2631,15 @@ function openNewTask(date){
   document.getElementById('taskRepeat').value='none';
   document.getElementById('taskRepeatEndRow').style.display='none';
   document.getElementById('taskRepeatEnd').value='';
-  selTaskCal=cals[0]?.id||null;taskColor=PRESETS[1];selPri='med';
-  buildCalOpts('taskCalOpts',selTaskCal,id=>{selTaskCal=id;buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});});
+  selTaskCal=cals[0]?.id||null;
+  taskColor=cals[0]?.color||PRESETS[1];
+  selPri='med';
+  buildCalOpts('taskCalOpts',selTaskCal,id=>{
+    selTaskCal=id;
+    const c=cals.find(x=>x.id===id);
+    if(c){taskColor=c.color;updCP('taskCP',taskColor);}
+    buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
+  });
   buildCP('taskCP',taskColor,c=>{taskColor=c;},()=>selTaskCal);
   buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   buildEmoji('taskEmojiRow',EMOJIS,null,e=>{taskEmoji=e;});
@@ -2608,8 +2657,15 @@ function openEditTask(t){
   document.getElementById('taskRepeat').value=t.repeat||'none';
   document.getElementById('taskRepeatEndRow').style.display=(t.repeat&&t.repeat!=='none')?'block':'none';
   document.getElementById('taskRepeatEnd').value=t.repeatEnd||'';
-  selTaskCal=t.calId||cals[0]?.id||null;taskColor=t.color||PRESETS[1];selPri=t.priority||'med';
-  buildCalOpts('taskCalOpts',selTaskCal,id=>{selTaskCal=id;buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});});
+  selTaskCal=t.calId||cals[0]?.id||null;
+  {const _tc=cals.find(c=>c.id===selTaskCal);taskColor=t.color||_tc?.color||PRESETS[1];}
+  selPri=t.priority||'med';
+  buildCalOpts('taskCalOpts',selTaskCal,id=>{
+    selTaskCal=id;
+    const c=cals.find(x=>x.id===id);
+    if(c&&!t.color){taskColor=c.color;updCP('taskCP',taskColor);}
+    buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
+  });
   buildCP('taskCP',taskColor,c=>{taskColor=c;},()=>selTaskCal);
   buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   buildEmoji('taskEmojiRow',EMOJIS,t.emoji||null,e=>{taskEmoji=e;document.getElementById('taskEmojiNone').classList.remove('on');document.getElementById('taskEmojiCustomBtn').classList.remove('on');document.getElementById('taskEmojiCustomInput').classList.remove('visible');});
