@@ -141,10 +141,10 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 #view-day .day-col{border-left:none;}
 
 /* ── QUADRANT VIEW ── */
-.quad-view{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:0;overflow:hidden;border-top:1px solid var(--border);}
+.quad-view{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(140px,1fr);gap:0;overflow-y:auto;overflow-x:hidden;border-top:1px solid var(--border);-webkit-overflow-scrolling:touch;}
 .quad-cell{background:var(--surface);overflow:hidden;display:flex;flex-direction:column;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
 .quad-cell:nth-child(2n){border-right:none;}
-.quad-cell:nth-child(n+3){border-bottom:none;}
+
 .quad-label{font-size:11px;font-weight:500;color:var(--text);padding:5px 10px 4px;border-bottom:1px solid #f0ece6;flex-shrink:0;display:flex;align-items:center;gap:6px;overflow:hidden;}
 .quad-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;}
 .quad-time-col{display:flex;}
@@ -493,10 +493,10 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 #view-day .day-col{border-left:none;}
 
 /* ── QUADRANT VIEW ── */
-.quad-view{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:0;overflow:hidden;border-top:1px solid var(--border);}
+.quad-view{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(140px,1fr);gap:0;overflow-y:auto;overflow-x:hidden;border-top:1px solid var(--border);-webkit-overflow-scrolling:touch;}
 .quad-cell{background:var(--surface);overflow:hidden;display:flex;flex-direction:column;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
 .quad-cell:nth-child(2n){border-right:none;}
-.quad-cell:nth-child(n+3){border-bottom:none;}
+
 .quad-label{font-size:12px;font-weight:600;color:var(--text);padding:8px 12px 6px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:8px;overflow:hidden;background:var(--bg);}
 .quad-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 
@@ -2159,8 +2159,8 @@ function renderQuad(){
   const qv=document.getElementById('quadView');qv.innerHTML='';
   const vis=new Set(cals.filter(c=>c.vis).map(c=>c.id));
   const today=fmtDate(new Date());
-  for(let i=0;i<4;i++){
-    const d=addDays(weekStart,i); // consecutive: Dom, Seg, Ter, Qua
+  for(let i=0;i<7;i++){
+    const d=addDays(weekStart,i); // semana completa: Dom → Sáb
     const ds=fmtDate(d);    const isToday=ds===today;
     const note=getNote(ds);
     const booksToday=getBooksForDate(ds);
@@ -2235,8 +2235,8 @@ function renderQuad(){
 
     cell.appendChild(qs);qv.appendChild(cell);
   }
-  const end4=addDays(weekStart,3);
-  document.getElementById('periodLabel').textContent=`${weekStart.getDate()}–${end4.getDate()} ${MONTHS_S[weekStart.getMonth()]}`;
+  const end7=addDays(weekStart,6);
+  document.getElementById('periodLabel').textContent=`${weekStart.getDate()}–${end7.getDate()} ${MONTHS_S[weekStart.getMonth()]}${weekStart.getMonth()!==end7.getMonth()?' / '+MONTHS_S[end7.getMonth()]:''}`;
 }
 // ══════════════════════════════════════════════
 function renderMonth(){
