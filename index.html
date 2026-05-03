@@ -1121,13 +1121,13 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <div class="f"><label>Cor</label><div class="cp-wrap" id="habitCP"></div></div>
     <div class="f"><label>Frequência</label>
       <div class="freq-row" id="freqRow">
-        <button class="freq-btn on" data-d="0">Dom</button>
         <button class="freq-btn on" data-d="1">Seg</button>
         <button class="freq-btn on" data-d="2">Ter</button>
         <button class="freq-btn on" data-d="3">Qua</button>
         <button class="freq-btn on" data-d="4">Qui</button>
         <button class="freq-btn on" data-d="5">Sex</button>
         <button class="freq-btn on" data-d="6">Sáb</button>
+        <button class="freq-btn on" data-d="0">Dom</button>
       </div>
     </div>
     <div class="sh-acts">
@@ -1415,7 +1415,7 @@ let selEmoji=EMOJIS[0],selHabitEmoji=HAB_EMOJIS[0],selCalEmoji=EMOJIS[0],selEdit
 let fabOpen=false,ctxCalId=null;
 
 // helpers
-function getWeekStart(d){const dt=new Date(d);dt.setDate(dt.getDate()-dt.getDay());dt.setHours(0,0,0,0);return dt;}
+function getWeekStart(d){const dt=new Date(d);const day=dt.getDay();const diff=day===0?-6:1-day;dt.setDate(dt.getDate()+diff);dt.setHours(0,0,0,0);return dt;}
 function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
 function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function fmtTime(h,m){return`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;}
@@ -1905,9 +1905,11 @@ function renderMiniCal(){
   const y=miniDate.getFullYear(),m=miniDate.getMonth();
   document.getElementById('miniTitle').textContent=`${MONTHS_S[m]} ${y}`;
   const g=document.getElementById('miniGrid');g.innerHTML='';
-  DAYS.forEach(d=>{const el=document.createElement('div');el.className='mini-dn';el.textContent=d[0];g.appendChild(el);});
+  // Days header starting Monday
+  [1,2,3,4,5,6,0].forEach(di=>{const el=document.createElement('div');el.className='mini-dn';el.textContent=DAYS[di][0];g.appendChild(el);});
   const first=new Date(y,m,1),last=new Date(y,m+1,0),todayStr=fmtDate(new Date());
-  for(let i=0;i<first.getDay();i++){const el=document.createElement('div');el.className='mini-d other';el.textContent=new Date(y,m,-first.getDay()+i+1).getDate();g.appendChild(el);}
+  const firstDow=first.getDay();const offset=firstDow===0?6:firstDow-1;
+  for(let i=0;i<offset;i++){const el=document.createElement('div');el.className='mini-d other';el.textContent=new Date(y,m,i-offset+1).getDate();g.appendChild(el);}
   for(let d=1;d<=last.getDate();d++){
     const date=new Date(y,m,d),el=document.createElement('div'),ds=fmtDate(date);
     const isT=ds===todayStr,isSel=ds===fmtDate(curView==='day'?curDate:weekStart);
@@ -2245,15 +2247,16 @@ function renderMonth(){
   const y=curDate.getFullYear(),m=curDate.getMonth();
   document.getElementById('periodLabel').textContent=`${MONTHS_F[m]} ${y}`;
   const hdr=document.getElementById('monthHdr');hdr.innerHTML='';
-  DAYS.forEach(d=>{const el=document.createElement('div');el.className='month-dow';el.textContent=d[0];hdr.appendChild(el);});
+  [1,2,3,4,5,6,0].forEach(di=>{const el=document.createElement('div');el.className='month-dow';el.textContent=DAYS[di][0];hdr.appendChild(el);});
   const grid=document.getElementById('monthGrid');grid.innerHTML='';
   const first=new Date(y,m,1),last=new Date(y,m+1,0);
   const todayStr=fmtDate(new Date());
   const vis=new Set(cals.filter(c=>c.vis).map(c=>c.id));
   const cells=[];
-  for(let i=0;i<first.getDay();i++)cells.push(new Date(y,m,-first.getDay()+i+1));
+  const firstDow=first.getDay();const offset=firstDow===0?6:firstDow-1;
+  for(let i=0;i<offset;i++)cells.push(new Date(y,m,i-offset+1));
   for(let d=1;d<=last.getDate();d++)cells.push(new Date(y,m,d));
-  while(cells.length<42)cells.push(new Date(y,m+1,cells.length-last.getDate()-first.getDay()+1));
+  while(cells.length<42)cells.push(new Date(y,m+1,cells.length-last.getDate()-offset+1));
   cells.forEach(date=>{
     const ds=fmtDate(date);
     const cell=document.createElement('div');
