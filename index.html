@@ -1046,7 +1046,6 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="f"><label>Repetir</label>
         <select id="evRepeat"><option value="none">Não repetir</option><option value="daily">Diariamente</option><option value="weekly">Semanalmente</option><option value="monthly">Mensalmente</option><option value="custom">Personalizado…</option></select>
       </div>
-      <!-- Custom repeat panel -->
       <div id="evCustomRepeatPanel" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 14px 10px;margin-bottom:14px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
           <span style="font-size:12px;color:var(--muted);font-weight:500;">A cada</span>
@@ -1423,7 +1422,7 @@ const MONTHS_F=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','A
 const HH=60;
 
 // In-memory state — kept in sync with Firestore via real-time listeners
-let cals=[{id:'c1',name:'Pessoal',color:'#6b8f5e',emoji:'📅',vis:true},{id:'c2',name:'Trabalho',color:'#c97d5a',emoji:'💼',vis:true}];
+let cals=[]; // populated from Firestore on load — never pre-filled to avoid overwriting saved data
 let evs=[], tasks=[], habits=[], habitLogs={}, notes={};
 let globalPalettes=[]; // [{id,name,colors:[{hex,label}×5]}]
 // readings: array of book objects {id,title,color,startDate,endDate}
@@ -1467,12 +1466,10 @@ function setSyncStatus(state){
 async function manualSync(){
   const el=document.getElementById('syncBtn');
   if(el.disabled)return;
+  if(!_firestoreReady){setSyncStatus('syncing');return;} // still loading, don't overwrite
   setSyncStatus('syncing');
   try{
-    // Just re-save current data to Firebase to confirm it's persisted
-    await Promise.all([
-      svCals(),svEvs(),svTasks(),svHabits(),svHabitLogs()
-    ]);
+    await Promise.all([svCals(),svEvs(),svTasks(),svHabits(),svHabitLogs()]);
     setSyncStatus('ok');
   }catch(e){
     setSyncStatus('error');console.error(e);
@@ -1507,12 +1504,12 @@ function svReading(){}
 // ══════════════════════════════════════════════
 // FIRESTORE SAVE FUNCTIONS
 // ══════════════════════════════════════════════
-async function svEvs(){_skip('evs');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','evs'),{list:evs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
-async function svTasks(){_skip('tasks');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','tasks'),{list:tasks});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
-async function svHabits(){_skip('habits');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','habits'),{list:habits});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
-async function svHabitLogs(){_skip('habitLogs');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','habitLogs'),{data:habitLogs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
-async function svCals(){_skip('cals');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','cals'),{list:cals});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
-async function svPalettes(){_skip('palettes');setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','palettes'),{list:globalPalettes});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}}
+async function svEvs(){_skip('evs');_guardedSave('evs',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','evs'),{list:evs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svTasks(){_skip('tasks');_guardedSave('tasks',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','tasks'),{list:tasks});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svHabits(){_skip('habits');_guardedSave('habits',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','habits'),{list:habits});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svHabitLogs(){_skip('habitLogs');_guardedSave('habitLogs',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','habitLogs'),{data:habitLogs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svCals(){_skip('cals');_guardedSave('cals',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','cals'),{list:cals});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svPalettes(){_skip('palettes');_guardedSave('palettes',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','palettes'),{list:globalPalettes});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
 async function svNote(ds,text){
   setSyncStatus('syncing');
   try{
@@ -1520,6 +1517,23 @@ async function svNote(ds,text){
     else{await deleteDoc(doc(db,'agenda_notes',ds));delete notes[ds];}
     localStorage.setItem(`tb2_note_${ds}`,text);setSyncStatus('ok');
   }catch(e){localStorage.setItem(`tb2_note_${ds}`,text);setSyncStatus('offline');console.error(e);}
+}
+
+// ── FIRESTORE READY GUARD ──
+// Prevents any save from running before the initial Firestore snapshots have loaded,
+// which would overwrite saved data with the empty in-memory defaults.
+let _firestoreReady=false;
+const _pendingSaves=[];
+function _guardedSave(key,fn){
+  if(!_firestoreReady){_pendingSaves.push({key,fn});return;}
+  fn();
+}
+function _flushPendingSaves(){
+  // deduplicate: only keep the last save per key
+  const seen=new Set();
+  const toRun=[..._pendingSaves].reverse().filter(({key})=>seen.has(key)?false:(seen.add(key),true)).reverse();
+  _pendingSaves.length=0;
+  toRun.forEach(({fn})=>fn());
 }
 
 // Legacy sv() alias — called throughout codebase
@@ -1540,41 +1554,65 @@ function _skip(key){_skipNext[key]=Date.now();}
 function _shouldSkip(key){const t=_skipNext[key];if(t&&Date.now()-t<5000){_skipNext[key]=0;return true;}return false;}
 
 function initFirestoreListeners(){
+  // Track how many critical collections have fired their first snapshot
+  let _loadedCount=0;
+  const CRITICAL=6; // palettes, cals, evs, tasks, habits, habitLogs
+  function _onLoaded(){
+    _loadedCount++;
+    if(_loadedCount>=CRITICAL&&!_firestoreReady){
+      _firestoreReady=true;
+      _flushPendingSaves();
+      setSyncStatus('ok');
+      setTimeout(()=>{const o=document.getElementById('loadingOverlay');if(o)o.classList.add('hide');},400);
+    }
+  }
+
   onSnapshot(doc(db,'agenda','palettes'),s=>{
-    if(_shouldSkip('palettes'))return;
-    if(s.exists()&&s.data().list){globalPalettes=s.data().list;}
-  },()=>{});
+    if(!_shouldSkip('palettes')&&s.exists()&&s.data().list){globalPalettes=s.data().list;}
+    _onLoaded();
+  },()=>{_onLoaded();});
+
   onSnapshot(doc(db,'agenda','cals'),s=>{
-    if(_shouldSkip('cals'))return;
-    if(s.exists()&&s.data().list){cals=s.data().list;renderCalList();renderAll();}
-    else setSyncStatus('offline');
-  },()=>setSyncStatus('offline'));
+    if(!_shouldSkip('cals')){
+      if(s.exists()&&s.data().list&&s.data().list.length>0){
+        cals=s.data().list;renderCalList();renderAll();
+      } else if(!s.exists()||!s.data()?.list?.length){
+        // Firestore truly empty — create defaults only now
+        cals=[{id:'c1',name:'Pessoal',color:'#6b8f5e',emoji:'📅',vis:true},{id:'c2',name:'Trabalho',color:'#c97d5a',emoji:'💼',vis:true}];
+        renderCalList();renderAll();
+      }
+    }
+    _onLoaded();
+  },()=>{setSyncStatus('offline');_onLoaded();});
+
   onSnapshot(doc(db,'agenda','evs'),s=>{
-    if(_shouldSkip('evs'))return;
-    if(s.exists()&&s.data().list){evs=s.data().list;renderAll();}
-  },()=>setSyncStatus('offline'));
+    if(!_shouldSkip('evs')&&s.exists()&&s.data().list){evs=s.data().list;renderAll();}
+    _onLoaded();
+  },()=>{setSyncStatus('offline');_onLoaded();});
+
   onSnapshot(doc(db,'agenda','tasks'),s=>{
-    if(_shouldSkip('tasks'))return;
-    if(s.exists()&&s.data().list){tasks=s.data().list;renderAll();if(curView==='tasks')renderTasks();}
-  },()=>setSyncStatus('offline'));
+    if(!_shouldSkip('tasks')&&s.exists()&&s.data().list){tasks=s.data().list;renderAll();if(curView==='tasks')renderTasks();}
+    _onLoaded();
+  },()=>{setSyncStatus('offline');_onLoaded();});
+
   onSnapshot(doc(db,'agenda','habits'),s=>{
-    if(_shouldSkip('habits'))return;
-    if(s.exists()&&s.data().list){habits=s.data().list;renderAll();if(curView==='habits')renderHabits();}
-  },()=>setSyncStatus('offline'));
+    if(!_shouldSkip('habits')&&s.exists()&&s.data().list){habits=s.data().list;renderAll();if(curView==='habits')renderHabits();}
+    _onLoaded();
+  },()=>{setSyncStatus('offline');_onLoaded();});
+
   onSnapshot(doc(db,'agenda','habitLogs'),s=>{
-    if(_shouldSkip('habitLogs'))return;
-    if(s.exists()&&s.data().data){habitLogs=s.data().data;renderAll();if(curView==='habits')renderHabits();}
-  },()=>setSyncStatus('offline'));
+    if(!_shouldSkip('habitLogs')&&s.exists()&&s.data().data){habitLogs=s.data().data;renderAll();if(curView==='habits')renderHabits();}
+    _onLoaded();
+  },()=>{setSyncStatus('offline');_onLoaded();});
+
   onSnapshot(doc(db,'agenda','readingBooks'),s=>{
-    if(_shouldSkip('readingBooks'))return;
-    if(s.exists()&&s.data().list){readingBooks=s.data().list;renderAll();}
-  },()=>setSyncStatus('offline'));
+    if(!_shouldSkip('readingBooks')&&s.exists()&&s.data().list){readingBooks=s.data().list;renderAll();}
+  },()=>{});
+
   onSnapshot(collection(db,'agenda_notes'),s=>{
     s.docChanges().forEach(c=>{if(c.type==='removed')delete notes[c.doc.id];else notes[c.doc.id]=c.doc.data().text||'';});
     renderAll();
-  },()=>setSyncStatus('offline'));
-  setSyncStatus('ok');
-  setTimeout(()=>{const o=document.getElementById('loadingOverlay');if(o)o.classList.add('hide');},600);
+  },()=>{});
 }
 
 // saved custom colors (persisted in localStorage)
@@ -2812,38 +2850,16 @@ function nextDateCustom(dateStr,repeatStr){
   const d=new Date(dateStr+'T12:00:00');
   if(unit==='day'){d.setDate(d.getDate()+interval);return fmtDate(d);}
   if(unit==='month'){d.setMonth(d.getMonth()+interval);return fmtDate(d);}
-  // week with specific days
   if(unit==='week'&&days.length>0){
     const sorted=[...days].sort((a,b)=>a-b);
     const curDow=d.getDay();
     const nextDow=sorted.find(dd=>dd>curDow);
     if(nextDow!==undefined){d.setDate(d.getDate()+(nextDow-curDow));return fmtDate(d);}
-    // wrap to next cycle: go to first selected day of next Nth week
     const firstDow=sorted[0];
-    const daysToFirstInNextCycle=(7*interval)-(curDow-firstDow+7)%7||(7*interval);
-    d.setDate(d.getDate()+daysToFirstInNextCycle);
-    return fmtDate(d);
+    const daysToNext=(7*interval)-((curDow-firstDow+7)%(7*interval))||(7*interval);
+    d.setDate(d.getDate()+daysToNext);return fmtDate(d);
   }
   d.setDate(d.getDate()+7*interval);return fmtDate(d);
-}
-function expandRecurrence(ev){
-  if(!ev.repeat||ev.repeat==='none')return[ev];
-  if(ev.repeat.startsWith('custom:')){
-    const result=[{...ev}];
-    const limit=ev.repeatEnd||addDateMonths(ev.date,6);
-    let cur=nextDateCustom(ev.date,ev.repeat);let safety=0;
-    while(cur<=limit&&safety<500){result.push({...ev,id:uid(),date:cur,parentId:ev.id});cur=nextDateCustom(cur,ev.repeat);safety++;}
-    return result;
-  }
-  const result=[{...ev}];
-  const limit=ev.repeatEnd||addDateMonths(ev.date,6);
-  let cur=nextDate(ev.date,ev.repeat);
-  let safety=0;
-  while(cur<=limit&&safety<365){
-    result.push({...ev,id:uid(),date:cur,parentId:ev.id});
-    cur=nextDate(cur,ev.repeat);safety++;
-  }
-  return result;
 }
 function getCustomRepeatStr(){
   const interval=parseInt(document.getElementById('evCustomInterval').value)||1;
@@ -2866,6 +2882,25 @@ function loadCustomRepeatStr(repeatStr){
 function refreshCustomWeekDaysVisibility(){
   const unit=document.getElementById('evCustomUnit').value;
   document.getElementById('evCustomWeekDays').style.display=unit==='week'?'flex':'none';
+}
+function expandRecurrence(ev){
+  if(!ev.repeat||ev.repeat==='none')return[ev];
+  if(ev.repeat.startsWith('custom:')){
+    const result=[{...ev}];
+    const limit=ev.repeatEnd||addDateMonths(ev.date,6);
+    let cur=nextDateCustom(ev.date,ev.repeat);let safety=0;
+    while(cur<=limit&&safety<500){result.push({...ev,id:uid(),date:cur,parentId:ev.id});cur=nextDateCustom(cur,ev.repeat);safety++;}
+    return result;
+  }
+  const result=[{...ev}];
+  const limit=ev.repeatEnd||addDateMonths(ev.date,6);
+  let cur=nextDate(ev.date,ev.repeat);
+  let safety=0;
+  while(cur<=limit&&safety<365){
+    result.push({...ev,id:uid(),date:cur,parentId:ev.id});
+    cur=nextDate(cur,ev.repeat);safety++;
+  }
+  return result;
 }
 function expandRecurrenceTask(t){
   if(!t.repeat||t.repeat==='none')return[t];
