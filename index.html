@@ -1607,7 +1607,7 @@ function initFirestoreListeners(){
         cals=s.data().list;renderCalList();renderAll();
       } else if(!s.exists()||!s.data()?.list?.length){
         // Firestore truly empty — create defaults only now
-        cals=[{id:'c1',name:'Pessoal',color:'#6b8f5e',emoji:'📅',vis:true},{id:'c2',name:'Trabalho',color:'#c97d5a',emoji:'💼',vis:true}];
+        cals=[{id:'c1',name:'Pessoal',color:'#E05C6E',emoji:'📅',vis:true},{id:'c2',name:'Trabalho',color:'#7AAD4A',emoji:'💼',vis:true}];
         renderCalList();renderAll();
       }
     }
@@ -3858,6 +3858,94 @@ if(false)document.getElementById('addDesktop').style.display='block'; // FAB use
 // AUTH + INIT
 // ══════════════════════════════════════════════
 
+// Palette: alternating warm pinks and warm greens
+const MIGRATE_COLORS = {
+  'Pessoal':   '#E05C6E',
+  'Trabalho':  '#7AAD4A',
+  'Faculdade': '#D94F72',
+  'Saúde':     '#85B84F',
+  'Finanças':  '#C94468',
+  'Casa':      '#92B855',
+  'default_pink':  ['#E05C6E','#D94F72','#C94468','#E0667A','#D45870','#C8526B','#BB3F5E','#E07080','#D46075','#C84A63'],
+  'default_green': ['#7AAD4A','#6EA33E','#85B84F','#92B855','#78A840','#9EC45E','#6B9C38','#88B84A','#A0C860','#74A83C'],
+};
+
+const FACULDADE_SUBS = [
+  { name: 'Empreendedorismo e Novos Negócios',              emoji: '🚀', color: '#E05C6E' },
+  { name: 'Inteligência Competitiva e Pesquisa de Mercado', emoji: '📊', color: '#7AAD4A' },
+  { name: 'Marketing de Relacionamento',                    emoji: '🤝', color: '#D94F72' },
+  { name: 'Análise de Projetos de Investimentos',           emoji: '💰', color: '#85B84F' },
+];
+
+async function runColorMigration(uid) {
+  const migKey = `tb2_color_migrated_v2_${uid}`;
+  if (localStorage.getItem(migKey)) return;
+
+  // Load current cals and evs from Firestore
+  const [calsSnap, evsSnap] = await Promise.all([
+    getDoc(userDoc('cals')),
+    getDoc(userDoc('evs')),
+  ]);
+
+  let liveCals = calsSnap.exists() ? (calsSnap.data().list || []) : [];
+  let liveEvs  = evsSnap.exists()  ? (evsSnap.data().list  || []) : [];
+
+  // 1. Update colors of existing parent calendars, alternating pink/green
+  const pinkPool  = [...MIGRATE_COLORS.default_pink];
+  const greenPool = [...MIGRATE_COLORS.default_green];
+  let colorToggle = 0; // 0=pink, 1=green
+  const calColorMap = {};
+
+  liveCals.filter(c => !c.parentId).forEach(cal => {
+    const known = MIGRATE_COLORS[cal.name];
+    if (known) {
+      cal.color = known;
+    } else {
+      cal.color = colorToggle % 2 === 0
+        ? (pinkPool.shift()  || MIGRATE_COLORS.default_pink[0])
+        : (greenPool.shift() || MIGRATE_COLORS.default_green[0]);
+      colorToggle++;
+    }
+    calColorMap[cal.id] = cal.color;
+  });
+
+  // propagate color to existing subcals
+  liveCals.filter(c => c.parentId).forEach(sub => {
+    sub.color = calColorMap[sub.parentId] || sub.color;
+    calColorMap[sub.id] = sub.color;
+  });
+
+  // 2. Add Faculdade subcalendars if Faculdade parent exists
+  const facCal = liveCals.find(c => c.name === 'Faculdade' && !c.parentId);
+  if (facCal) {
+    FACULDADE_SUBS.forEach(sub => {
+      const alreadyExists = liveCals.some(c => c.name === sub.name && c.parentId === facCal.id);
+      if (!alreadyExists) {
+        const newId = uid() + '_fac';
+        liveCals.push({ id: newId, name: sub.name, color: sub.color, emoji: sub.emoji, vis: true, parentId: facCal.id });
+        calColorMap[newId] = sub.color;
+      }
+    });
+  }
+
+  // 3. Update event colors to match their calendar
+  liveEvs = liveEvs.map(ev => {
+    if (ev.calId && calColorMap[ev.calId]) {
+      return { ...ev, color: calColorMap[ev.calId] };
+    }
+    return ev;
+  });
+
+  // 4. Save everything back
+  await Promise.all([
+    setDoc(userDoc('cals'), { list: liveCals }),
+    setDoc(userDoc('evs'),  { list: liveEvs }),
+  ]);
+
+  localStorage.setItem(migKey, '1');
+  console.log('✅ Migração de cores v2 concluída');
+}
+
 // Migration: copy old anonymous data (agenda/*) to user-scoped path, once
 async function migrateOldData(uid){
   const keys=['cals','evs','tasks','habits','habitLogs','palettes','readingBooks'];
@@ -3940,6 +4028,8 @@ onAuthStateChanged(auth, async(user)=>{
         await migrateOldData(user.uid);
         localStorage.setItem(migKey,'1');
       }
+      // migrate colors and add subcalendars
+      await runColorMigration(user.uid);
       setSyncStatus('syncing');
       renderMiniCal();
       renderCalList();
