@@ -3989,6 +3989,34 @@ function hideLoginScreen(){
   if(ls){ls.style.display='none';}
 }
 
+let _appStarted=false;
+onAuthStateChanged(auth, async(user)=>{
+  if(user){
+    currentUser=user;
+    updateUserInfoBar(user);
+    hideLoginScreen();
+    if(!_appStarted){
+      _appStarted=true;
+      const migKey=`tb2_migrated_${user.uid}`;
+      if(!localStorage.getItem(migKey)){
+        await migrateOldData(user.uid);
+        localStorage.setItem(migKey,'1');
+      }
+      await runColorMigration(user.uid);
+      setSyncStatus('syncing');
+      renderMiniCal();
+      renderCalList();
+      renderAll();
+      scrollToNow();
+      initFirestoreListeners();
+      initSidebarPin();
+    }
+  } else {
+    currentUser=null;
+    showLoginScreen();
+  }
+});
+
 document.getElementById('googleSignInBtn').addEventListener('click',async()=>{
   const errEl=document.getElementById('loginError');
   errEl.style.display='none';
@@ -4015,35 +4043,7 @@ function updateUserInfoBar(user){
   }
 }
 
-let _appStarted=false;
-onAuthStateChanged(auth, async(user)=>{
-  if(user){
-    currentUser=user;
-    updateUserInfoBar(user);
-    hideLoginScreen();
-    if(!_appStarted){
-      _appStarted=true;
-      // migrate old anonymous data on first login
-      const migKey=`tb2_migrated_${user.uid}`;
-      if(!localStorage.getItem(migKey)){
-        await migrateOldData(user.uid);
-        localStorage.setItem(migKey,'1');
-      }
-      // migrate colors and add subcalendars
-      await runColorMigration(user.uid);
-      setSyncStatus('syncing');
-      renderMiniCal();
-      renderCalList();
-      renderAll();
-      scrollToNow();
-      initFirestoreListeners();
-      initSidebarPin();
-    }
-  } else {
-    currentUser=null;
-    showLoginScreen();
-  }
-});
+
 </script>
 </body>
 </html>
