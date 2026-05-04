@@ -1593,7 +1593,6 @@ function initFirestoreListeners(){
       _firestoreReady=true;
       _flushPendingSaves();
       setSyncStatus('ok');
-      setTimeout(()=>{const o=document.getElementById('loadingOverlay');if(o){o.classList.add('hide');setTimeout(()=>o.classList.add('gone'),500);}},400);
     }
   }
 
@@ -3995,6 +3994,9 @@ onAuthStateChanged(auth, async(user)=>{
     currentUser=user;
     updateUserInfoBar(user);
     hideLoginScreen();
+    // Remove loading overlay immediately — Firestore listeners will populate data in background
+    const lo=document.getElementById('loadingOverlay');
+    if(lo){lo.classList.add('hide');setTimeout(()=>lo.classList.add('gone'),500);}
     if(!_appStarted){
       _appStarted=true;
       const migKey=`tb2_migrated_${user.uid}`;
