@@ -897,7 +897,18 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-logo">Agenda</div>
   <div class="loading-dot"></div>
-  <div class="loading-sub">Conectando à nuvem ☁️</div>
+  <div class="loading-sub" id="loadingSub">Conectando à nuvem ☁️</div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <div style="font-family:'Fraunces',serif;font-size:32px;font-weight:300;color:var(--text);letter-spacing:-.5px;">🌸 Agenda</div>
+  <div style="font-size:14px;color:var(--muted);font-family:'DM Sans',sans-serif;">Entre para sincronizar seus dados</div>
+  <button id="googleSignInBtn" style="display:flex;align-items:center;gap:10px;padding:12px 24px;border:1px solid var(--border);border-radius:24px;background:var(--surface);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text);cursor:pointer;box-shadow:0 2px 8px rgba(45,42,38,.08);transition:all .15s;">
+    <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
+    Entrar com Google
+  </button>
+  <div id="loginError" style="display:none;font-size:12px;color:#c0735e;font-family:'DM Sans',sans-serif;"></div>
 </div>
 
 <div class="topbar" id="topbar">
@@ -937,6 +948,11 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="mini-grid" id="miniGrid"></div>
     </div>
     <div class="sb-sec">
+      <div id="userInfoBar" style="display:flex;align-items:center;gap:8px;padding:8px 12px 4px;margin-bottom:4px;border-bottom:1px solid var(--border);">
+        <img id="userAvatar" src="" alt="" style="width:24px;height:24px;border-radius:50%;display:none;">
+        <span id="userName" style="font-size:12px;font-weight:500;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+        <button id="logoutBtn" title="Sair" style="font-size:11px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:12px;padding:3px 8px;cursor:pointer;font-family:inherit;white-space:nowrap;">Sair</button>
+      </div>
       <div class="sb-sec-hdr"><span class="sb-sec-title">Agendas</span><div style="display:flex;gap:4px;"><button class="sb-add" title="Importar Google Agenda" id="openImportBtn">📥</button><button class="sb-add" title="Paletas de cores" id="openPaletteBtn">🎨</button><button class="sb-add" id="newCalBtn">＋</button></div></div>
       <div id="calList"></div>
     </div>
@@ -1393,6 +1409,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 // ══════════════════════════════════════════════
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 const firebaseConfig = {
   apiKey: "AIzaSyD7acpFfJDV1Py4Ewa6SC8ND7GtI-7bUn8",
   authDomain: "agenda-lu-3a537.firebaseapp.com",
@@ -1403,6 +1420,16 @@ const firebaseConfig = {
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
+const auth = getAuth(fbApp);
+const googleProvider = new GoogleAuthProvider();
+
+// Current authenticated user
+let currentUser = null;
+
+// Returns the Firestore doc path scoped to the logged-in user
+function userDoc(name){ return doc(db, 'users', currentUser.uid, 'agenda', name); }
+function userNoteDoc(ds){ return doc(db, 'users', currentUser.uid, 'agenda_notes', ds); }
+function userNotesCol(){ return collection(db, 'users', currentUser.uid, 'agenda_notes'); }
 
 const PRESETS=[
   // Greens (sage family)
@@ -1492,9 +1519,10 @@ function getReading(ds){return getBooksForDate(ds).map(b=>b.title);}
 
 // ── SAVE FUNCTIONS ──
 async function svReadingBooks(){
+  if(!currentUser)return;
   setSyncStatus('syncing');
   try{
-    await setDoc(doc(db,'agenda','readingBooks'),{list:readingBooks});
+    await setDoc(userDoc('readingBooks'),{list:readingBooks});
     setSyncStatus('ok');
   }catch(e){setSyncStatus('error');console.error(e);}
 }
@@ -1504,17 +1532,18 @@ function svReading(){}
 // ══════════════════════════════════════════════
 // FIRESTORE SAVE FUNCTIONS
 // ══════════════════════════════════════════════
-async function svEvs(){_skip('evs');_guardedSave('evs',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','evs'),{list:evs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
-async function svTasks(){_skip('tasks');_guardedSave('tasks',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','tasks'),{list:tasks});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
-async function svHabits(){_skip('habits');_guardedSave('habits',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','habits'),{list:habits});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
-async function svHabitLogs(){_skip('habitLogs');_guardedSave('habitLogs',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','habitLogs'),{data:habitLogs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
-async function svCals(){_skip('cals');_guardedSave('cals',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','cals'),{list:cals});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
-async function svPalettes(){_skip('palettes');_guardedSave('palettes',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','palettes'),{list:globalPalettes});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svEvs(){if(!currentUser)return;_skip('evs');_guardedSave('evs',async()=>{setSyncStatus('syncing');try{await setDoc(userDoc('evs'),{list:evs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svTasks(){if(!currentUser)return;_skip('tasks');_guardedSave('tasks',async()=>{setSyncStatus('syncing');try{await setDoc(userDoc('tasks'),{list:tasks});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svHabits(){if(!currentUser)return;_skip('habits');_guardedSave('habits',async()=>{setSyncStatus('syncing');try{await setDoc(userDoc('habits'),{list:habits});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svHabitLogs(){if(!currentUser)return;_skip('habitLogs');_guardedSave('habitLogs',async()=>{setSyncStatus('syncing');try{await setDoc(userDoc('habitLogs'),{data:habitLogs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svCals(){if(!currentUser)return;_skip('cals');_guardedSave('cals',async()=>{setSyncStatus('syncing');try{await setDoc(userDoc('cals'),{list:cals});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svPalettes(){if(!currentUser)return;_skip('palettes');_guardedSave('palettes',async()=>{setSyncStatus('syncing');try{await setDoc(userDoc('palettes'),{list:globalPalettes});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
 async function svNote(ds,text){
+  if(!currentUser)return;
   setSyncStatus('syncing');
   try{
-    if(text.trim()){await setDoc(doc(db,'agenda_notes',ds),{text,date:ds});notes[ds]=text;}
-    else{await deleteDoc(doc(db,'agenda_notes',ds));delete notes[ds];}
+    if(text.trim()){await setDoc(userNoteDoc(ds),{text,date:ds});notes[ds]=text;}
+    else{await deleteDoc(userNoteDoc(ds));delete notes[ds];}
     localStorage.setItem(`tb2_note_${ds}`,text);setSyncStatus('ok');
   }catch(e){localStorage.setItem(`tb2_note_${ds}`,text);setSyncStatus('offline');console.error(e);}
 }
@@ -1567,12 +1596,12 @@ function initFirestoreListeners(){
     }
   }
 
-  onSnapshot(doc(db,'agenda','palettes'),s=>{
+  onSnapshot(userDoc('palettes'),s=>{
     if(!_shouldSkip('palettes')&&s.exists()&&s.data().list){globalPalettes=s.data().list;}
     _onLoaded();
   },()=>{_onLoaded();});
 
-  onSnapshot(doc(db,'agenda','cals'),s=>{
+  onSnapshot(userDoc('cals'),s=>{
     if(!_shouldSkip('cals')){
       if(s.exists()&&s.data().list&&s.data().list.length>0){
         cals=s.data().list;renderCalList();renderAll();
@@ -1585,31 +1614,31 @@ function initFirestoreListeners(){
     _onLoaded();
   },()=>{setSyncStatus('offline');_onLoaded();});
 
-  onSnapshot(doc(db,'agenda','evs'),s=>{
+  onSnapshot(userDoc('evs'),s=>{
     if(!_shouldSkip('evs')&&s.exists()&&s.data().list){evs=s.data().list;renderAll();}
     _onLoaded();
   },()=>{setSyncStatus('offline');_onLoaded();});
 
-  onSnapshot(doc(db,'agenda','tasks'),s=>{
+  onSnapshot(userDoc('tasks'),s=>{
     if(!_shouldSkip('tasks')&&s.exists()&&s.data().list){tasks=s.data().list;renderAll();if(curView==='tasks')renderTasks();}
     _onLoaded();
   },()=>{setSyncStatus('offline');_onLoaded();});
 
-  onSnapshot(doc(db,'agenda','habits'),s=>{
+  onSnapshot(userDoc('habits'),s=>{
     if(!_shouldSkip('habits')&&s.exists()&&s.data().list){habits=s.data().list;renderAll();if(curView==='habits')renderHabits();}
     _onLoaded();
   },()=>{setSyncStatus('offline');_onLoaded();});
 
-  onSnapshot(doc(db,'agenda','habitLogs'),s=>{
+  onSnapshot(userDoc('habitLogs'),s=>{
     if(!_shouldSkip('habitLogs')&&s.exists()&&s.data().data){habitLogs=s.data().data;renderAll();if(curView==='habits')renderHabits();}
     _onLoaded();
   },()=>{setSyncStatus('offline');_onLoaded();});
 
-  onSnapshot(doc(db,'agenda','readingBooks'),s=>{
+  onSnapshot(userDoc('readingBooks'),s=>{
     if(!_shouldSkip('readingBooks')&&s.exists()&&s.data().list){readingBooks=s.data().list;renderAll();}
   },()=>{});
 
-  onSnapshot(collection(db,'agenda_notes'),s=>{
+  onSnapshot(userNotesCol(),s=>{
     s.docChanges().forEach(c=>{if(c.type==='removed')delete notes[c.doc.id];else notes[c.doc.id]=c.doc.data().text||'';});
     renderAll();
   },()=>{});
@@ -3826,15 +3855,104 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelec
 if(false)document.getElementById('addDesktop').style.display='block'; // FAB used on all devices
 
 // ══════════════════════════════════════════════
-// INIT
+// AUTH + INIT
 // ══════════════════════════════════════════════
-setSyncStatus('syncing');
-renderMiniCal();
-renderCalList();
-renderAll();
-scrollToNow();
-initFirestoreListeners();
-initSidebarPin();
+
+// Migration: copy old anonymous data (agenda/*) to user-scoped path, once
+async function migrateOldData(uid){
+  const keys=['cals','evs','tasks','habits','habitLogs','palettes','readingBooks'];
+  let migrated=false;
+  for(const k of keys){
+    try{
+      const oldSnap=await getDoc(doc(db,'agenda',k));
+      if(oldSnap.exists()){
+        const newSnap=await getDoc(doc(db,'users',uid,'agenda',k));
+        if(!newSnap.exists()){
+          await setDoc(doc(db,'users',uid,'agenda',k),oldSnap.data());
+          migrated=true;
+        }
+      }
+    }catch(e){console.warn('migration skip',k,e);}
+  }
+  // migrate notes
+  try{
+    const notesSnap=await getDocs(collection(db,'agenda_notes'));
+    for(const d of notesSnap.docs){
+      try{
+        const newSnap=await getDoc(doc(db,'users',uid,'agenda_notes',d.id));
+        if(!newSnap.exists()) await setDoc(doc(db,'users',uid,'agenda_notes',d.id),d.data());
+        migrated=true;
+      }catch(e){}
+    }
+  }catch(e){}
+  if(migrated) console.log('✅ Dados migrados para conta do usuário');
+}
+
+function showLoginScreen(){
+  const ls=document.getElementById('loginScreen');
+  const lo=document.getElementById('loadingOverlay');
+  if(lo)lo.classList.add('hide');
+  if(ls){ls.style.display='flex';}
+}
+
+function hideLoginScreen(){
+  const ls=document.getElementById('loginScreen');
+  if(ls){ls.style.display='none';}
+}
+
+document.getElementById('googleSignInBtn').addEventListener('click',async()=>{
+  const errEl=document.getElementById('loginError');
+  errEl.style.display='none';
+  try{
+    await signInWithPopup(auth,googleProvider);
+  }catch(e){
+    errEl.textContent='Erro ao entrar. Tente de novo.';
+    errEl.style.display='block';
+    console.error(e);
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click',async()=>{
+  const {signOut}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+  await signOut(auth);
+});
+
+function updateUserInfoBar(user){
+  const avatar=document.getElementById('userAvatar');
+  const nameEl=document.getElementById('userName');
+  if(user){
+    if(user.photoURL){avatar.src=user.photoURL;avatar.style.display='block';}
+    nameEl.textContent=user.displayName||user.email||'Usuário';
+  }
+}
+
+let _appStarted=false;
+onAuthStateChanged(auth, async(user)=>{
+  if(user){
+    currentUser=user;
+    updateUserInfoBar(user);
+    hideLoginScreen();
+    if(!_appStarted){
+      _appStarted=true;
+      // migrate old anonymous data on first login
+      const migKey=`tb2_migrated_${user.uid}`;
+      if(!localStorage.getItem(migKey)){
+        await migrateOldData(user.uid);
+        localStorage.setItem(migKey,'1');
+      }
+      setSyncStatus('syncing');
+      renderMiniCal();
+      renderCalList();
+      renderAll();
+      scrollToNow();
+      initFirestoreListeners();
+      initSidebarPin();
+    }
+  } else {
+    currentUser=null;
+    showLoginScreen();
+  }
+});
 </script>
 </body>
 </html>
