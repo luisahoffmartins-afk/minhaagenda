@@ -3877,8 +3877,10 @@ const FACULDADE_SUBS = [
   { name: 'Análise de Projetos de Investimentos',           emoji: '💰', color: '#85B84F' },
 ];
 
-async function runColorMigration(uid) {
-  const migKey = `tb2_color_migrated_v2_${uid}`;
+const genId = () => uid();
+
+async function runColorMigration(userId) {
+  const migKey = `tb2_color_migrated_v2_${userId}`;
   if (localStorage.getItem(migKey)) return;
 
   // Load current cals and evs from Firestore
@@ -3921,7 +3923,7 @@ async function runColorMigration(uid) {
     FACULDADE_SUBS.forEach(sub => {
       const alreadyExists = liveCals.some(c => c.name === sub.name && c.parentId === facCal.id);
       if (!alreadyExists) {
-        const newId = uid() + '_fac';
+        const newId = genId() + '_fac';
         liveCals.push({ id: newId, name: sub.name, color: sub.color, emoji: sub.emoji, vis: true, parentId: facCal.id });
         calColorMap[newId] = sub.color;
       }
