@@ -921,11 +921,11 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .dsum-empty{text-align:center;padding:28px 0;color:var(--muted);font-size:13px;font-style:italic;font-family:'Fraunces',serif;font-weight:300;}
 
 @media(min-width:700px){
-  .sidebar{position:relative;transform:none!important;box-shadow:none!important;width:230px;flex-shrink:0;transition:width .25s ease,opacity .25s ease;}
-  .sidebar.sb-collapsed{width:0!important;overflow:hidden!important;border:none!important;}
+  .sidebar{position:relative;transform:none!important;box-shadow:none!important;width:230px;flex-shrink:0;transition:width .25s ease;overflow:hidden;}
+  .sidebar.sb-collapsed{width:0!important;border-right:none!important;}
   .sidebar-backdrop{display:none!important;}
   .sb-toggle{display:none;}
-  .sidebar-pin{display:flex;}
+  .sidebar-pin{display:flex;transition:left .25s ease;}
   .sidebar-pin.sb-open{left:230px;}
   /* Keep FAB on desktop too */
   .fab{right:28px;bottom:28px;width:54px;height:54px;}
@@ -3718,8 +3718,28 @@ function scrollToNow(){
 // ══════════════════════════════════════════════
 // SIDEBAR
 // ══════════════════════════════════════════════
-function openSb(){document.getElementById('sidebar').classList.add('open');document.getElementById('sbBd').classList.add('open');if(isD())updatePin();}
-function closeSb(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbBd').classList.remove('open');if(isD())updatePin();}
+function openSb(){
+  const sb=document.getElementById('sidebar');
+  const bd=document.getElementById('sbBd');
+  if(isD()){
+    sb.classList.remove('sb-collapsed');
+  } else {
+    sb.classList.add('open');
+    bd.classList.add('open');
+  }
+  updatePin();
+}
+function closeSb(){
+  const sb=document.getElementById('sidebar');
+  const bd=document.getElementById('sbBd');
+  if(isD()){
+    sb.classList.add('sb-collapsed');
+  } else {
+    sb.classList.remove('open');
+    bd.classList.remove('open');
+  }
+  updatePin();
+}
 
 // Desktop collapsible sidebar
 let sbPinned=false;
@@ -3728,22 +3748,23 @@ function initSidebarPin(){
   if(!pin)return;
   if(!isD()){pin.style.display='none';return;}
   pin.style.display='flex';
+  // Start expanded on desktop
+  document.getElementById('sidebar').classList.remove('sb-collapsed');
   updatePin();
   pin.addEventListener('click',()=>{
-    sbPinned=!sbPinned;
     const sb=document.getElementById('sidebar');
-    if(sbPinned){sb.classList.add('open');document.getElementById('sbBd').classList.remove('open');}
-    else{sb.classList.remove('open');}
-    updatePin();
+    if(sb.classList.contains('sb-collapsed')){openSb();}
+    else{closeSb();}
   });
 }
 function updatePin(){
   const pin=document.getElementById('sidebarPin');
   if(!pin)return;
+  if(!isD()){pin.style.display='none';return;}
   const sb=document.getElementById('sidebar');
-  const isOpen=sb.classList.contains('open');
-  sbPinned=isOpen;
-  if(isOpen){
+  const isCollapsed=sb.classList.contains('sb-collapsed');
+  sbPinned=!isCollapsed;
+  if(!isCollapsed){
     pin.textContent='‹';pin.title='Recolher barra lateral';
     pin.classList.add('sb-open');
   } else {
@@ -3754,8 +3775,19 @@ function updatePin(){
 window.addEventListener('resize',()=>{
   const pin=document.getElementById('sidebarPin');
   if(!pin)return;
-  if(isD()){pin.style.display='flex';updatePin();}
-  else{pin.style.display='none';document.getElementById('sidebar').classList.remove('open');document.getElementById('sbBd').classList.remove('open');}
+  if(isD()){
+    pin.style.display='flex';
+    // Remove mobile-style open/backdrop when switching to desktop
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sbBd').classList.remove('open');
+    updatePin();
+  } else {
+    pin.style.display='none';
+    // Remove desktop collapse class when switching to mobile
+    document.getElementById('sidebar').classList.remove('sb-collapsed');
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sbBd').classList.remove('open');
+  }
 });
 
 // ══════════════════════════════════════════════
