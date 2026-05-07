@@ -1657,9 +1657,28 @@ function initFirestoreListeners(){
   // Track how many critical collections have fired their first snapshot
   let _loadedCount=0;
   const CRITICAL=7; // palettes, cals, evs, tasks, habits, habitLogs, customColors
+
+  // ── TIMEOUT FALLBACK ──
+  // Se o Firebase não responder em 8 segundos, libera o app mesmo assim
+  const _timeoutId=setTimeout(()=>{
+    if(!_firestoreReady){
+      _firestoreReady=true;
+      _flushPendingSaves();
+      setSyncStatus('offline');
+      // Garantir dados mínimos para o app funcionar
+      if(!cals.length){
+        cals=[{id:'c1',name:'Pessoal',color:'#6b8f5e',emoji:'📅',vis:true},{id:'c2',name:'Trabalho',color:'#c97d5a',emoji:'💼',vis:true}];
+        renderCalList();
+      }
+      renderAll();
+      setTimeout(()=>{const o=document.getElementById('loadingOverlay');if(o)o.classList.add('hide');},400);
+    }
+  },8000);
+
   function _onLoaded(){
     _loadedCount++;
     if(_loadedCount>=CRITICAL&&!_firestoreReady){
+      clearTimeout(_timeoutId);
       _firestoreReady=true;
       _flushPendingSaves();
       setSyncStatus('ok');
@@ -1772,66 +1791,66 @@ function buildCP(id,cur,cb,getCalIdFn){
     </div>`;
 
   // remove old save menu if exists
-  let existingMenu=document.getElementById(\`\${id}_menu\`);
+  let existingMenu=document.getElementById(`${id}_menu`);
   if(existingMenu)existingMenu.remove();
   const menuEl=document.createElement('div');
-  menuEl.className='cp-save-menu';menuEl.id=\`\${id}_menu\`;
-  menuEl.innerHTML=\`
-    <div class="cp-save-opt" id="\${id}_toPreset"><span class="cp-save-icon">🎨</span>Salvar nos presets</div>
+  menuEl.className='cp-save-menu';menuEl.id=`${id}_menu`;
+  menuEl.innerHTML=`
+    <div class="cp-save-opt" id="${id}_toPreset"><span class="cp-save-icon">🎨</span>Salvar nos presets</div>
     <div class="cp-save-divider"></div>
-    <div class="cp-save-opt \${getCalIdFn?'':'disabled'}" id="\${id}_toCal"><span class="cp-save-icon">📅</span><span id="\${id}_calOptLabel">Salvar na paleta da agenda</span></div>\`;
+    <div class="cp-save-opt ${getCalIdFn?'':'disabled'}" id="${id}_toCal"><span class="cp-save-icon">📅</span><span id="${id}_calOptLabel">Salvar na paleta da agenda</span></div>`;
   document.body.appendChild(menuEl);
   const menu=menuEl;
 
   // toggle panels
-  document.getElementById(\`\${id}_tbtn\`).addEventListener('click',e=>{
+  document.getElementById(`${id}_tbtn`).addEventListener('click',e=>{
     e.stopPropagation();
-    const btn=document.getElementById(\`\${id}_tbtn\`);
-    const panel=document.getElementById(\`\${id}_tpanel\`);
+    const btn=document.getElementById(`${id}_tbtn`);
+    const panel=document.getElementById(`${id}_tpanel`);
     const isOpen=panel.classList.contains('open');
     panel.classList.toggle('open',!isOpen);
     btn.classList.toggle('open',!isOpen);
     if(!isOpen && !panel.dataset.built){
       panel.dataset.built='1';
-      buildColorRefTables(\`\${id}_tables\`,hex=>{syncColor(hex);},id);
+      buildColorRefTables(`${id}_tables`,hex=>{syncColor(hex);},id);
     }
   });
-  document.getElementById(\`\${id}_cbtn\`).addEventListener('click',e=>{
+  document.getElementById(`${id}_cbtn`).addEventListener('click',e=>{
     e.stopPropagation();
-    const btn=document.getElementById(\`\${id}_cbtn\`);
-    const panel=document.getElementById(\`\${id}_cpanel\`);
+    const btn=document.getElementById(`${id}_cbtn`);
+    const panel=document.getElementById(`${id}_cpanel`);
     panel.classList.toggle('open');
     btn.classList.toggle('open');
   });
 
   function syncColor(hex,skipNative){
     currentHex=hex;cb(hex);
-    const ni=document.getElementById(\`\${id}_n\`);
+    const ni=document.getElementById(`${id}_n`);
     if(!skipNative&&ni)ni.value=hex;
-    const hi=document.getElementById(\`\${id}_h\`);if(hi)hi.value=hex;
-    const pv=document.getElementById(\`\${id}_pv\`);if(pv)pv.style.background=hex;
-    document.querySelectorAll(\`#\${id}_p .cp-main-swatch\`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
-    document.querySelectorAll(\`#\${id}_saved .cp-saved-dot\`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
+    const hi=document.getElementById(`${id}_h`);if(hi)hi.value=hex;
+    const pv=document.getElementById(`${id}_pv`);if(pv)pv.style.background=hex;
+    document.querySelectorAll(`#${id}_p .cp-main-swatch`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
+    document.querySelectorAll(`#${id}_saved .cp-saved-dot`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
     // sync ref table selection
-    document.querySelectorAll(\`#\${id}_tables .color-ref-swatch\`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
+    document.querySelectorAll(`#${id}_tables .color-ref-swatch`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
     if(getCalIdFn){
       const calId=getCalIdFn();
       const cal=cals.find(x=>x.id===calId);
-      const lbl=document.getElementById(\`\${id}_calOptLabel\`);
-      const opt=document.getElementById(\`\${id}_toCal\`);
+      const lbl=document.getElementById(`${id}_calOptLabel`);
+      const opt=document.getElementById(`${id}_toCal`);
       if(lbl&&cal){lbl.textContent='Salvar na paleta: '+(cal.emoji?' ':'')+cal.name;opt.classList.remove('disabled');}
       else if(opt){opt.classList.add('disabled');}
     }
   }
 
   function flashBtn(ok){
-    const btn=document.getElementById(\`\${id}_add\`);if(!btn)return;
+    const btn=document.getElementById(`${id}_add`);if(!btn)return;
     btn.textContent='✓ Salvo!';btn.classList.add('saved');
     setTimeout(()=>{btn.textContent='＋ Salvar';btn.classList.remove('saved');},1400);
   }
 
   function positionMenu(){
-    const btn=document.getElementById(\`\${id}_add\`);if(!btn)return;
+    const btn=document.getElementById(`${id}_add`);if(!btn)return;
     const r=btn.getBoundingClientRect();
     const menuW=194,menuH=80;
     const spaceBelow=window.innerHeight-r.bottom;
@@ -1841,12 +1860,12 @@ function buildCP(id,cur,cb,getCalIdFn){
     menu.style.left=Math.max(8,r.right-menuW)+'px';
     menu.style.right='auto';
   }
-  document.getElementById(\`\${id}_add\`).addEventListener('click',e=>{
+  document.getElementById(`${id}_add`).addEventListener('click',e=>{
     e.stopPropagation();
     if(getCalIdFn){
       const cal=cals.find(x=>x.id===getCalIdFn());
-      const lbl=document.getElementById(\`\${id}_calOptLabel\`);
-      const opt=document.getElementById(\`\${id}_toCal\`);
+      const lbl=document.getElementById(`${id}_calOptLabel`);
+      const opt=document.getElementById(`${id}_toCal`);
       if(lbl&&cal){lbl.textContent='Salvar na paleta: '+(cal.emoji?cal.emoji+' ':'')+cal.name;opt.classList.remove('disabled');}
     }
     if(!menu.classList.contains('open'))positionMenu();
@@ -1855,13 +1874,13 @@ function buildCP(id,cur,cb,getCalIdFn){
   document.addEventListener('click',()=>menu.classList.remove('open'),{capture:true,passive:true});
   menu.addEventListener('click',e=>e.stopPropagation());
 
-  document.getElementById(\`\${id}_toPreset\`).addEventListener('click',()=>{
+  document.getElementById(`${id}_toPreset`).addEventListener('click',()=>{
     const hex=currentHex;menu.classList.remove('open');
     saveCustomColor(hex);
     buildSavedStrip(id,syncColor);
     flashBtn(true);
   });
-  document.getElementById(\`\${id}_toCal\`).addEventListener('click',()=>{
+  document.getElementById(`${id}_toCal`).addEventListener('click',()=>{
     if(!getCalIdFn)return;
     const calId=getCalIdFn();const cal=cals.find(x=>x.id===calId);if(!cal)return;
     menu.classList.remove('open');const hex=currentHex;
@@ -1884,13 +1903,13 @@ function buildCP(id,cur,cb,getCalIdFn){
     flashBtn(true);
   });
 
-  const ni=document.getElementById(\`\${id}_n\`);
+  const ni=document.getElementById(`${id}_n`);
   if(ni)ni.addEventListener('input',e=>syncColor(e.target.value,true));
-  const hi=document.getElementById(\`\${id}_h\`);
+  const hi=document.getElementById(`${id}_h`);
   if(hi)hi.addEventListener('input',e=>{let v=e.target.value;if(!v.startsWith('#'))v='#'+v;if(validHex(v))syncColor(v);});
 
   // Build preset swatches
-  const pp=document.getElementById(\`\${id}_p\`);
+  const pp=document.getElementById(`${id}_p`);
   const allPresets=[...PRESETS,...customColors.filter(x=>!PRESETS.includes(x))];
   allPresets.forEach(col=>{
     const s=document.createElement('div');s.className='cp-main-swatch'+(col===cur?' sel':'');s.style.background=col;
