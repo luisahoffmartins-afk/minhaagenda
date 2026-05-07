@@ -1217,6 +1217,17 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <div class="f"><label>Ícone</label><div class="emoji-row" id="editCalEmojiRow"></div></div>
     <div class="f"><label>Cor</label><div class="cp-wrap" id="editCalCP"></div></div>
     <div class="f">
+      <label>Tabelas de referência <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(clique para aplicar a cor)</span></label>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;">&#127807; Tons de Verde</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;" id="editCalGreenTable"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;">&#127800; Tons de Rosa</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;" id="editCalPinkTable"></div>
+      </div>
+    </div>
+    <div class="f">
       <label>Paleta própria <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(opcional, até 5 cores)</span></label>
       <div id="editCalPaletteEditor"></div>
     </div>
@@ -3020,6 +3031,7 @@ function openEditCal(calId){
   buildCP('editCalCP',editCalColor,c=>{editCalColor=c;},()=>editCalId);
   getEditCalPalette=buildCalPaletteEditor('editCalPaletteEditor',cal.palette||[]);
   populateParentSel('editCalParentSel',calId,cal.parentId||'');
+  buildInlineColorTables('editCalGreenTable','editCalPinkTable',hex=>{editCalColor=hex;updCP('editCalCP',hex);});
   openSh('editCalSheet');
 }
 function saveEditCal(){
@@ -3161,6 +3173,54 @@ function renderColorTables(){
   }
   buildTable('greenTable',greens);
   buildTable('pinkTable',pinks);
+}
+// Build inline color tables for a specific pair of container ids
+// onSelect(hex) is called when user clicks a color (applies it to the picker)
+function buildInlineColorTables(greenId, pinkId, onSelect){
+  const greens=[
+    {hex:'#e8f5e2',label:'Menta suave'},{hex:'#c8e6c0',label:'Pistache'},
+    {hex:'#a5d6a7',label:'Verde água'},{hex:'#81c784',label:'Sage claro'},
+    {hex:'#66bb6a',label:'Verde médio'},{hex:'#4caf50',label:'Verde puro'},
+    {hex:'#43a047',label:'Esmeralda'},{hex:'#388e3c',label:'V. floresta'},
+    {hex:'#2e7d32',label:'V. musgo'},{hex:'#1b5e20',label:'V. escuro'},
+    {hex:'#b5cfa0',label:'Sage pastel'},{hex:'#8fb87a',label:'Sage médio'},
+    {hex:'#6b8f5e',label:'Sage'},{hex:'#4a7c59',label:'Sage profundo'},
+    {hex:'#2d5a3d',label:'V. noturno'},
+  ];
+  const pinks=[
+    {hex:'#fce4ec',label:'Rosa névoa'},{hex:'#f8bbd9',label:'Rosa pastel'},
+    {hex:'#f48fb1',label:'Rosa claro'},{hex:'#f06292',label:'Rosa médio'},
+    {hex:'#ec407a',label:'Rosa vivo'},{hex:'#e91e63',label:'Rosa intenso'},
+    {hex:'#c2185b',label:'Rosa escuro'},{hex:'#880e4f',label:'R. noturno'},
+    {hex:'#fdd7e4',label:'Blush suave'},{hex:'#e8c5b8',label:'Blush'},
+    {hex:'#f0a0b0',label:'Flamingo'},{hex:'#e07090',label:'Rosa antigo'},
+    {hex:'#d4547a',label:'Framboesa'},{hex:'#c0395e',label:'Cereja'},
+    {hex:'#ff80ab',label:'Rosa neon'},
+  ];
+  function fill(id, colors){
+    const el=document.getElementById(id);if(!el)return;el.innerHTML='';
+    colors.forEach(c=>{
+      const cell=document.createElement('div');
+      cell.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;';
+      const dot=document.createElement('div');
+      dot.style.cssText=`width:100%;aspect-ratio:1;border-radius:8px;background:${c.hex};box-shadow:0 1px 3px rgba(0,0,0,.12);transition:transform .15s,box-shadow .15s;`;
+      dot.title=c.label;
+      dot.addEventListener('mouseenter',()=>dot.style.transform='scale(1.08)');
+      dot.addEventListener('mouseleave',()=>dot.style.transform='');
+      dot.addEventListener('click',()=>{
+        onSelect(c.hex);
+        el.querySelectorAll('div[data-selected]').forEach(d=>{d.removeAttribute('data-selected');d.style.boxShadow='0 1px 3px rgba(0,0,0,.12)';});
+        dot.setAttribute('data-selected','1');
+        dot.style.boxShadow=`0 0 0 2px #fff,0 0 0 4px ${c.hex}`;
+      });
+      const lbl=document.createElement('div');
+      lbl.style.cssText='font-size:9px;color:var(--muted);text-align:center;line-height:1.2;';
+      lbl.textContent=c.label;
+      cell.appendChild(dot);cell.appendChild(lbl);el.appendChild(cell);
+    });
+  }
+  fill(greenId,greens);
+  fill(pinkId,pinks);
 }
 function openPaletteSheet(){renderColorTables();renderPaletteMgr();openSh('paletteSheet');}
 document.getElementById('closePaletteSheet').addEventListener('click',()=>closeSh('paletteSheet'));
