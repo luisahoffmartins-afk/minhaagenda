@@ -440,11 +440,11 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .sb-sec-title{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
 .sb-add{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
 .sb-add:hover{background:#f1f3f4;color:var(--accent);}
-.cal-item{display:flex;align-items:center;gap:8px;padding:5px 4px;border-radius:4px;cursor:pointer;font-size:13px;position:relative;}
-.cal-item:hover{background:#f1f3f4;}
-.cal-chk{width:16px;height:16px;border-radius:3px;border:2px solid;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:background .15s;}
-.cal-chk.on{background:currentColor;}
-.cal-chk.on::after{content:'✓';color:#fff;font-size:10px;font-weight:700;}
+.cal-item{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:8px;cursor:pointer;font-size:12px;position:relative;transition:background .1s;}
+.cal-item:hover{background:var(--accent-light);}
+.cal-chk{width:13px;height:13px;border-radius:50%;border:2px solid;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.cal-chk.on{background:currentColor;border-color:currentColor;}
+.cal-chk.on::after{content:'';width:5px;height:5px;border-radius:50%;background:#fff;display:block;}
 .cal-name{flex:1;font-weight:400;color:var(--text);}
 .cal-menu-btn{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:2px 4px;border-radius:50%;opacity:0;width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
 .cal-item:hover .cal-menu-btn{opacity:1;}
@@ -851,16 +851,46 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .cp-section-divider::before,.cp-section-divider::after{content:'';flex:1;height:1px;background:var(--border);}
 .add-palette-entry{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:8px;border:1.5px dashed var(--border);cursor:pointer;color:var(--muted);font-size:12px;transition:all .1s;}
 .add-palette-entry:hover{border-color:var(--accent);color:var(--accent);}
+/* cp-add-btn inside panels */
+.cp-add-btn{padding:7px 14px;border:none;border-radius:20px;background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;}
+.cp-add-btn:hover{background:var(--accent);color:#fff;}
+.cp-add-btn.saved{background:var(--accent);color:#fff;}
+/* cal selector popover — sheet style on mobile */
+@media(max-width:699px){
+  .cal-sel-popover.open{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;max-width:100%!important;border-radius:20px 20px 0 0;padding:8px 0 calc(16px + var(--safe-b));max-height:60dvh;overflow-y:auto;transform:translateY(0);}
+}
 /* ── UNIFIED COLOR BLOCK IN SHEETS ── */
-.sh-color-block .cp-wrap{margin-bottom:0;}
-.color-ref-tables{margin-top:10px;}
-.color-ref-tables-header{display:flex;align-items:center;gap:6px;margin:8px 0 6px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
+.sh-color-block{background:var(--bg);border-radius:12px;padding:12px 14px;margin-bottom:12px;}
+.sh-color-block label{display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+/* presets row — main swatches */
+.cp-main-swatches{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:2px;}
+.cp-main-swatch{width:28px;height:28px;border-radius:50%;border:3px solid transparent;cursor:pointer;flex-shrink:0;transition:transform .15s,box-shadow .15s;}
+.cp-main-swatch:hover{transform:scale(1.12);}
+.cp-main-swatch.sel{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--text);}
+/* collapsible toggle row */
+.cp-expand-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.cp-expand-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:11px;font-weight:500;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all .15s;}
+.cp-expand-btn:hover,.cp-expand-btn.open{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.cp-expand-btn .cp-exp-arrow{font-size:8px;transition:transform .2s;}
+.cp-expand-btn.open .cp-exp-arrow{transform:rotate(180deg);}
+/* collapsible panels */
+.cp-panel{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.cp-panel.open{display:block;}
+/* color ref swatches (inside panel) */
+.color-ref-tables{}
+.color-ref-tables-header{display:flex;align-items:center;gap:6px;margin:8px 0 5px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
 .color-ref-tables-header::before,.color-ref-tables-header::after{content:'';flex:1;height:1px;background:var(--border);}
-.color-ref-swatches{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;}
-.color-ref-swatch{width:26px;height:26px;border-radius:50%;border:3px solid transparent;cursor:pointer;flex-shrink:0;transition:transform .15s,box-shadow .15s;position:relative;}
-.color-ref-swatch:hover{transform:scale(1.15);}
+.color-ref-swatches{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2px;}
+.color-ref-swatch{width:26px;height:26px;border-radius:50%;border:3px solid transparent;cursor:pointer;flex-shrink:0;transition:transform .15s,box-shadow .15s;}
+.color-ref-swatch:hover{transform:scale(1.12);}
 .color-ref-swatch.sel{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--text);}
-.color-ref-group-label{font-size:10px;color:var(--muted);font-weight:500;margin-bottom:4px;margin-top:2px;}
+/* custom color panel */
+.cp-custom-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cp-custom-inner .cp-native{width:36px;height:36px;padding:2px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);cursor:pointer;flex-shrink:0;}
+.cp-custom-inner .cp-hex{flex:1;min-width:80px;padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);}
+.cp-custom-inner .cp-preview{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;}
+.cp-saved-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center;}
+.cp-saved-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
 
 .dsum-section{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 6px;display:flex;align-items:center;gap:6px;}
 .dsum-section:first-child{margin-top:0;}
@@ -1057,7 +1087,6 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="f sh-color-block">
         <label>Cor do evento</label>
         <div class="cp-wrap" id="evCP"></div>
-        <div id="evColorTables" class="color-ref-tables"></div>
         <div id="evPaletteSection"></div>
       </div>
       <div class="f"><label>Ícone <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(opcional)</span></label>
@@ -1132,7 +1161,6 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="f sh-color-block">
         <label>Cor da tarefa</label>
         <div class="cp-wrap" id="taskCP"></div>
-        <div id="taskColorTables" class="color-ref-tables"></div>
         <div id="taskPaletteSection"></div>
       </div>
       <div class="f"><label>Ícone <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(opcional)</span></label>
@@ -1267,7 +1295,6 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <div class="f sh-color-block">
       <label>Cor da agenda</label>
       <div class="cp-wrap" id="editCalCP"></div>
-      <div id="editCalColorTables" class="color-ref-tables"></div>
     </div>
     <div class="f">
       <label>Paleta própria <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(opcional, até 5 cores)</span></label>
@@ -1718,121 +1745,129 @@ function buildCP(id,cur,cb,getCalIdFn){
   const c=document.getElementById(id);if(!c)return;
   let currentHex=cur;
 
+  // Build the new unified structure
   c.innerHTML=`
-    <div class="cp-presets" id="${id}_p"></div>
-    <div class="cp-custom" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <input type="color" class="cp-native" id="${id}_n" value="${cur}">
-      <input type="text" class="cp-hex" id="${id}_h" placeholder="#000000" maxlength="7" value="${cur}">
-      <div class="cp-preview" id="${id}_pv" style="background:${cur}"></div>
-      <div class="cp-add-wrap" id="${id}_aw">
-        <button type="button" class="cp-add-btn" id="${id}_add" title="Salvar esta cor">＋</button>
-      </div>
+    <div class="cp-main-swatches" id="${id}_p"></div>
+    <div class="cp-expand-row">
+      <button type="button" class="cp-expand-btn" id="${id}_tbtn">
+        🌿 Tons de Verde e Rosa <span class="cp-exp-arrow">▾</span>
+      </button>
+      <button type="button" class="cp-expand-btn" id="${id}_cbtn">
+        ✏️ Cor personalizada <span class="cp-exp-arrow">▾</span>
+      </button>
     </div>
-    <div id="${id}_saved" style="display:${customColors.length?'flex':'none'};align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;">
-      <span style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">Salvas</span>
+    <div class="cp-panel" id="${id}_tpanel">
+      <div id="${id}_tables"></div>
+    </div>
+    <div class="cp-panel" id="${id}_cpanel">
+      <div class="cp-custom-inner">
+        <input type="color" class="cp-native" id="${id}_n" value="${cur}">
+        <input type="text" class="cp-hex" id="${id}_h" placeholder="#000000" maxlength="7" value="${cur}">
+        <div class="cp-preview" id="${id}_pv" style="background:${cur}"></div>
+        <button type="button" class="cp-add-btn" id="${id}_add" title="Salvar esta cor">＋ Salvar</button>
+      </div>
+      <div class="cp-saved-row" id="${id}_saved" style="display:${customColors.length?'flex':'none'};">
+        <span class="cp-saved-label">Salvas</span>
+      </div>
     </div>`;
 
-  // create menu on body so it escapes overflow:hidden and transform stacking contexts
-  let existingMenu=document.getElementById(`${id}_menu`);
+  // remove old save menu if exists
+  let existingMenu=document.getElementById(\`\${id}_menu\`);
   if(existingMenu)existingMenu.remove();
   const menuEl=document.createElement('div');
-  menuEl.className='cp-save-menu';menuEl.id=`${id}_menu`;
-  menuEl.innerHTML=`
-    <div class="cp-save-opt" id="${id}_toPreset"><span class="cp-save-icon">🎨</span>Salvar nos presets</div>
+  menuEl.className='cp-save-menu';menuEl.id=\`\${id}_menu\`;
+  menuEl.innerHTML=\`
+    <div class="cp-save-opt" id="\${id}_toPreset"><span class="cp-save-icon">🎨</span>Salvar nos presets</div>
     <div class="cp-save-divider"></div>
-    <div class="cp-save-opt ${getCalIdFn?'':'disabled'}" id="${id}_toCal"><span class="cp-save-icon">📅</span><span id="${id}_calOptLabel">Salvar na paleta da agenda</span></div>`;
+    <div class="cp-save-opt \${getCalIdFn?'':'disabled'}" id="\${id}_toCal"><span class="cp-save-icon">📅</span><span id="\${id}_calOptLabel">Salvar na paleta da agenda</span></div>\`;
   document.body.appendChild(menuEl);
   const menu=menuEl;
 
+  // toggle panels
+  document.getElementById(\`\${id}_tbtn\`).addEventListener('click',e=>{
+    e.stopPropagation();
+    const btn=document.getElementById(\`\${id}_tbtn\`);
+    const panel=document.getElementById(\`\${id}_tpanel\`);
+    const isOpen=panel.classList.contains('open');
+    panel.classList.toggle('open',!isOpen);
+    btn.classList.toggle('open',!isOpen);
+    if(!isOpen && !panel.dataset.built){
+      panel.dataset.built='1';
+      buildColorRefTables(\`\${id}_tables\`,hex=>{syncColor(hex);},id);
+    }
+  });
+  document.getElementById(\`\${id}_cbtn\`).addEventListener('click',e=>{
+    e.stopPropagation();
+    const btn=document.getElementById(\`\${id}_cbtn\`);
+    const panel=document.getElementById(\`\${id}_cpanel\`);
+    panel.classList.toggle('open');
+    btn.classList.toggle('open');
+  });
+
   function syncColor(hex,skipNative){
     currentHex=hex;cb(hex);
-    if(!skipNative)document.getElementById(`${id}_n`).value=hex;
-    document.getElementById(`${id}_h`).value=hex;
-    document.getElementById(`${id}_pv`).style.background=hex;
-    document.querySelectorAll(`#${id}_p .cp-swatch`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
-    document.querySelectorAll(`#${id}_saved .cp-saved-dot`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
-    // update cal label in menu
+    const ni=document.getElementById(\`\${id}_n\`);
+    if(!skipNative&&ni)ni.value=hex;
+    const hi=document.getElementById(\`\${id}_h\`);if(hi)hi.value=hex;
+    const pv=document.getElementById(\`\${id}_pv\`);if(pv)pv.style.background=hex;
+    document.querySelectorAll(\`#\${id}_p .cp-main-swatch\`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
+    document.querySelectorAll(\`#\${id}_saved .cp-saved-dot\`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
+    // sync ref table selection
+    document.querySelectorAll(\`#\${id}_tables .color-ref-swatch\`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===hex));
     if(getCalIdFn){
       const calId=getCalIdFn();
       const cal=cals.find(x=>x.id===calId);
-      const lbl=document.getElementById(`${id}_calOptLabel`);
-      const opt=document.getElementById(`${id}_toCal`);
+      const lbl=document.getElementById(\`\${id}_calOptLabel\`);
+      const opt=document.getElementById(\`\${id}_toCal\`);
       if(lbl&&cal){lbl.textContent='Salvar na paleta: '+(cal.emoji?' ':'')+cal.name;opt.classList.remove('disabled');}
       else if(opt){opt.classList.add('disabled');}
     }
   }
 
-  // helper: flash button feedback
   function flashBtn(ok){
-    const btn=document.getElementById(`${id}_add`);if(!btn)return;
-    btn.textContent='✓';btn.classList.add('saved');
-    setTimeout(()=>{btn.textContent='＋';btn.classList.remove('saved');},1400);
+    const btn=document.getElementById(\`\${id}_add\`);if(!btn)return;
+    btn.textContent='✓ Salvo!';btn.classList.add('saved');
+    setTimeout(()=>{btn.textContent='＋ Salvar';btn.classList.remove('saved');},1400);
   }
 
-  // position menu with fixed coords — menu is a direct body child, no transform ancestor
   function positionMenu(){
-    const btn=document.getElementById(`${id}_add`);if(!btn)return;
+    const btn=document.getElementById(\`\${id}_add\`);if(!btn)return;
     const r=btn.getBoundingClientRect();
-    const menuW=194;
-    const menuH=80;
+    const menuW=194,menuH=80;
     const spaceBelow=window.innerHeight-r.bottom;
     menu.style.position='fixed';
-    if(spaceBelow>=menuH+8){
-      menu.style.top=(r.bottom+6)+'px';
-      menu.style.bottom='auto';
-    } else {
-      menu.style.top=(r.top-menuH-6)+'px';
-      menu.style.bottom='auto';
-    }
-    const left=Math.max(8, r.right-menuW);
-    menu.style.left=left+'px';
+    menu.style.top=(spaceBelow>=menuH+8?r.bottom+6:r.top-menuH-6)+'px';
+    menu.style.bottom='auto';
+    menu.style.left=Math.max(8,r.right-menuW)+'px';
     menu.style.right='auto';
   }
-  document.getElementById(`${id}_add`).addEventListener('click',(e)=>{
+  document.getElementById(\`\${id}_add\`).addEventListener('click',e=>{
     e.stopPropagation();
-    // update cal label before showing
     if(getCalIdFn){
-      const calId=getCalIdFn();
-      const cal=cals.find(x=>x.id===calId);
-      const lbl=document.getElementById(`${id}_calOptLabel`);
-      const opt=document.getElementById(`${id}_toCal`);
+      const cal=cals.find(x=>x.id===getCalIdFn());
+      const lbl=document.getElementById(\`\${id}_calOptLabel\`);
+      const opt=document.getElementById(\`\${id}_toCal\`);
       if(lbl&&cal){lbl.textContent='Salvar na paleta: '+(cal.emoji?cal.emoji+' ':'')+cal.name;opt.classList.remove('disabled');}
     }
-    if(!menu.classList.contains('open')) positionMenu();
+    if(!menu.classList.contains('open'))positionMenu();
     menu.classList.toggle('open');
   });
-  // close menu on outside click
   document.addEventListener('click',()=>menu.classList.remove('open'),{capture:true,passive:true});
   menu.addEventListener('click',e=>e.stopPropagation());
 
-  // option 1: save to presets
-  document.getElementById(`${id}_toPreset`).addEventListener('click',()=>{
-    const hex=currentHex;
-    menu.classList.remove('open');
+  document.getElementById(\`\${id}_toPreset\`).addEventListener('click',()=>{
+    const hex=currentHex;menu.classList.remove('open');
     saveCustomColor(hex);
-    if(!pp.querySelector(`[data-custom="${hex}"]`)){
-      const s=document.createElement('div');s.className='cp-swatch';s.style.background=hex;s.setAttribute('data-custom',hex);
-      s.addEventListener('click',()=>syncColor(hex));
-      pp.appendChild(s);
-    }
     buildSavedStrip(id,syncColor);
     flashBtn(true);
   });
-
-  // option 2: save to calendar palette
-  document.getElementById(`${id}_toCal`).addEventListener('click',()=>{
+  document.getElementById(\`\${id}_toCal\`).addEventListener('click',()=>{
     if(!getCalIdFn)return;
-    const calId=getCalIdFn();
-    const cal=cals.find(x=>x.id===calId);
-    if(!cal)return;
-    menu.classList.remove('open');
-    const hex=currentHex;
+    const calId=getCalIdFn();const cal=cals.find(x=>x.id===calId);if(!cal)return;
+    menu.classList.remove('open');const hex=currentHex;
     if(!cal.palette)cal.palette=[];
-    // avoid duplicates
     if(!cal.palette.some(e=>e.hex===hex)){
-      cal.palette.push({hex,label:''});
-      svCals();
-      // rebuild palette section for open ev/task pickers
+      cal.palette.push({hex,label:''});svCals();
       ['evPaletteSection','taskPaletteSection'].forEach(secId=>{
         const sec=document.getElementById(secId);
         if(sec&&sec.innerHTML!==''){
@@ -1842,7 +1877,6 @@ function buildCP(id,cur,cb,getCalIdFn){
           buildPaletteSection(secId,curCal,setCb);
         }
       });
-      // if editing the cal itself, rebuild its inline palette editor
       if(id==='editCalCP'&&typeof getEditCalPalette!=='undefined'){
         getEditCalPalette=buildCalPaletteEditor('editCalPaletteEditor',cal.palette||[]);
       }
@@ -1850,22 +1884,18 @@ function buildCP(id,cur,cb,getCalIdFn){
     flashBtn(true);
   });
 
-  // preset swatches
-  const pp=document.getElementById(`${id}_p`);
+  const ni=document.getElementById(\`\${id}_n\`);
+  if(ni)ni.addEventListener('input',e=>syncColor(e.target.value,true));
+  const hi=document.getElementById(\`\${id}_h\`);
+  if(hi)hi.addEventListener('input',e=>{let v=e.target.value;if(!v.startsWith('#'))v='#'+v;if(validHex(v))syncColor(v);});
+
+  // Build preset swatches
+  const pp=document.getElementById(\`\${id}_p\`);
   const allPresets=[...PRESETS,...customColors.filter(x=>!PRESETS.includes(x))];
   allPresets.forEach(col=>{
-    const s=document.createElement('div');s.className='cp-swatch'+(col===cur?' sel':'');s.style.background=col;
+    const s=document.createElement('div');s.className='cp-main-swatch'+(col===cur?' sel':'');s.style.background=col;
     s.addEventListener('click',()=>syncColor(col));
     pp.appendChild(s);
-  });
-
-  // native color input
-  document.getElementById(`${id}_n`).addEventListener('input',e=>syncColor(e.target.value,true));
-
-  // hex input
-  document.getElementById(`${id}_h`).addEventListener('input',e=>{
-    let v=e.target.value;if(!v.startsWith('#'))v='#'+v;
-    if(validHex(v))syncColor(v);
   });
 
   buildSavedStrip(id,syncColor);
@@ -1873,11 +1903,9 @@ function buildCP(id,cur,cb,getCalIdFn){
 
 function buildSavedStrip(id,syncColor){
   const strip=document.getElementById(`${id}_saved`);if(!strip)return;
-  // clear old dots
   strip.querySelectorAll('.cp-saved-dot').forEach(x=>x.remove());
   customColors.forEach(hex=>{
-    const s=document.createElement('div');s.className='cp-swatch cp-saved-dot';s.style.background=hex;s.title=hex;
-    // right click / long press removes
+    const s=document.createElement('div');s.className='cp-main-swatch cp-saved-dot';s.style.background=hex;s.title=hex+' (clique direito para remover)';
     s.addEventListener('contextmenu',e=>{e.preventDefault();customColors=customColors.filter(x=>x!==hex);svCustomColors();buildSavedStrip(id,syncColor);});
     s.addEventListener('click',()=>syncColor(hex));
     strip.appendChild(s);
@@ -1887,7 +1915,8 @@ function buildSavedStrip(id,syncColor){
 function updCP(id,cur){
   const n=document.getElementById(`${id}_n`),h=document.getElementById(`${id}_h`),pv=document.getElementById(`${id}_pv`);
   if(n)n.value=cur;if(h)h.value=cur;if(pv)pv.style.background=cur;
-  document.querySelectorAll(`#${id}_p .cp-swatch`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===cur));
+  document.querySelectorAll(`#${id}_p .cp-main-swatch`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===cur));
+  document.querySelectorAll(`#${id}_tables .color-ref-swatch`).forEach(s=>s.classList.toggle('sel',r2h(s.style.background)===cur));
 }
 
 // ══════════════════════════════════════════════
@@ -2797,7 +2826,6 @@ function openNewEv(date,start,end){
     buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   });
   buildCP('evCP',evColor,c=>{evColor=c;},()=>selEvCal);
-  buildColorRefTables('evColorTables',c=>{evColor=c;},'evCP');
   buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   buildEmoji('evEmojiRow',EMOJIS,null,e=>{evEmoji=e;});
   document.getElementById('evEmojiNone').classList.add('on');
@@ -2831,7 +2859,6 @@ function openEditEv(ev){
     buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   });
   buildCP('evCP',evColor,c=>{evColor=c;},()=>selEvCal);
-  buildColorRefTables('evColorTables',c=>{evColor=c;},'evCP');
   buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   buildEmoji('evEmojiRow',EMOJIS,ev.emoji||null,e=>{evEmoji=e;document.getElementById('evEmojiNone').classList.remove('on');document.getElementById('evEmojiCustomBtn').classList.remove('on');document.getElementById('evEmojiCustomInput').classList.remove('visible');});
   // if emoji is custom (not in preset list), show in custom input
@@ -2887,7 +2914,6 @@ function openNewTask(date){
     buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   });
   buildCP('taskCP',taskColor,c=>{taskColor=c;},()=>selTaskCal);
-  buildColorRefTables('taskColorTables',c=>{taskColor=c;},'taskCP');
   buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   buildEmoji('taskEmojiRow',EMOJIS,null,e=>{taskEmoji=e;});
   document.getElementById('taskEmojiCustomBtn').classList.remove('on');
@@ -2915,7 +2941,6 @@ function openEditTask(t){
     buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   });
   buildCP('taskCP',taskColor,c=>{taskColor=c;},()=>selTaskCal);
-  buildColorRefTables('taskColorTables',c=>{taskColor=c;},'taskCP');
   buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   buildEmoji('taskEmojiRow',EMOJIS,t.emoji||null,e=>{taskEmoji=e;document.getElementById('taskEmojiNone').classList.remove('on');document.getElementById('taskEmojiCustomBtn').classList.remove('on');document.getElementById('taskEmojiCustomInput').classList.remove('visible');});
   const isPreset=EMOJIS.includes(t.emoji);
@@ -3139,7 +3164,6 @@ function openEditCal(calId){
   document.getElementById('editCalName').value=cal.name;
   buildEmoji('editCalEmojiRow',EMOJIS,selEditCalEmoji,e=>selEditCalEmoji=e);
   buildCP('editCalCP',editCalColor,c=>{editCalColor=c;},()=>editCalId);
-  buildColorRefTables('editCalColorTables',c=>{editCalColor=c;},'editCalCP');
   getEditCalPalette=buildCalPaletteEditor('editCalPaletteEditor',cal.palette||[]);
   populateParentSel('editCalParentSel',calId,cal.parentId||'');
   openSh('editCalSheet');
