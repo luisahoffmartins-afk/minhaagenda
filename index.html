@@ -1559,7 +1559,11 @@ const HAB_EMOJIS=['🌿','🔥','💧','🧘','🏃','📚','🍎','💪','😴'
 const DAYS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const MONTHS_S=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const MONTHS_F=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const HH=60;
+// Read --hour-h from CSS so pixel math stays in sync with the stylesheet
+function getHH(){return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hour-h'))||80;}
+let HH=getHH();
+// Re-read on resize in case a media-query changes --hour-h (e.g. desktop 90px vs mobile 80px)
+window.addEventListener('resize',()=>{HH=getHH();});
 
 // In-memory state — kept in sync with Firestore via real-time listeners
 let cals=[]; // populated from Firestore on load — never pre-filled to avoid overwriting saved data
