@@ -2073,8 +2073,9 @@ function buildCalOpts(id,selId,cb){
     trigger._calOptsReady=true;
     trigger.addEventListener('click',e=>{
       e.stopPropagation();
+      const isOpen=popover&&popover.classList.contains('open');
       document.querySelectorAll('.cal-sel-popover.open').forEach(p=>p.classList.remove('open'));
-      if(!popover)return;
+      if(!popover||isOpen)return;
       const r=trigger.getBoundingClientRect();
       const popH=220; // estimated popover height
       const sheet=trigger.closest('.sheet');
@@ -2095,9 +2096,16 @@ function buildCalOpts(id,selId,cb){
         popover.style.bottom=(window.innerHeight-r.top+4)+'px';
         popover.style.top='auto';
       }
-      popover.classList.toggle('open');
+      popover.classList.add('open');
     });
-    document.addEventListener('click',closePopover,{capture:true,passive:true});
+    if(!document._calPopoverCloseRegistered){
+      document._calPopoverCloseRegistered=true;
+      document.addEventListener('click',e=>{
+        if(!e.target.closest('.cal-sel-trigger')&&!e.target.closest('.cal-sel-popover')){
+          document.querySelectorAll('.cal-sel-popover.open').forEach(p=>p.classList.remove('open'));
+        }
+      });
+    }
   }
 }
 
