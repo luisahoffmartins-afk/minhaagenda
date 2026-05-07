@@ -75,20 +75,20 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .mini-d.today{background:var(--accent);color:#fff;font-weight:700;}
 .mini-d.other{color:var(--muted);}
 .mini-d.sel:not(.today){background:var(--accent-light);color:var(--accent);font-weight:600;}
-.sb-sec{padding:8px 12px 4px;}
-.sb-sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
-.sb-sec-title{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
-.sb-add{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all .15s;}
+.sb-sec{padding:6px 10px 4px;}
+.sb-sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
+.sb-sec-title{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.sb-add{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all .15s;}
 .sb-add:hover{background:var(--accent-light);color:var(--accent);}
-.cal-item{display:flex;align-items:center;gap:7px;padding:5px 6px;border-radius:8px;cursor:pointer;font-size:12px;position:relative;transition:background .1s;}
+.cal-item{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:8px;cursor:pointer;font-size:12px;position:relative;transition:background .1s;}
 .cal-item:hover{background:var(--accent-light);}
-.cal-subitem{margin-left:18px;}
-.cal-sub-square{width:6px;height:6px;border-radius:1px;background:var(--border);flex-shrink:0;}
-.cal-chk{width:14px;height:14px;border-radius:3px;border:2px solid;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;transition:background .15s;}
-.cal-chk.on{background:currentColor;}
-.cal-chk.on::after{content:'✓';color:#fff;font-size:9px;font-weight:700;}
-.cal-name{flex:1;font-weight:400;color:var(--text);}
-.cal-menu-btn{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:2px 4px;border-radius:50%;opacity:0;width:22px;height:22px;display:flex;align-items:center;justify-content:center;transition:opacity .1s;}
+.cal-subitem{margin-left:14px;}
+.cal-sub-square{display:none;}
+.cal-chk{width:13px;height:13px;border-radius:50%;border:2px solid;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.cal-chk.on{background:currentColor;border-color:currentColor;}
+.cal-chk.on::after{content:'';width:5px;height:5px;border-radius:50%;background:#fff;}
+.cal-name{flex:1;font-size:12px;font-weight:400;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-menu-btn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:2px;border-radius:50%;opacity:0;width:20px;height:20px;display:flex;align-items:center;justify-content:center;transition:opacity .1s;flex-shrink:0;}
 .cal-item:hover .cal-menu-btn{opacity:1;}
 .cal-menu-btn:hover{background:var(--accent-light);}
 .sb-progress{padding:2px 0 4px;}
@@ -621,12 +621,20 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .cp-native{width:32px;height:32px;padding:2px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;}
 .cp-hex{flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--bg);}
 .cp-preview{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;}
-.cal-opts{display:flex;flex-direction:column;gap:1px;margin-top:2px;}
-.cal-opt{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;border:none;cursor:pointer;transition:background .12s;background:none;width:100%;text-align:left;}
-.cal-opt:hover{background:var(--bg);}
+/* Calendar selector — compact dropdown trigger + popover */
+.cal-sel-trigger{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;transition:border-color .15s;width:100%;margin-top:3px;}
+.cal-sel-trigger:hover{border-color:var(--accent);}
+.cal-sel-trigger-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cal-sel-trigger-name{flex:1;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;text-align:left;}
+.cal-sel-trigger-arrow{font-size:10px;color:var(--muted);}
+.cal-sel-popover{position:fixed;z-index:600;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 32px rgba(45,42,38,.16);min-width:200px;max-width:280px;overflow:hidden;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .15s,transform .15s;}
+.cal-sel-popover.open{opacity:1;pointer-events:all;transform:translateY(0);}
+.cal-sel-list{max-height:240px;overflow-y:auto;padding:4px;}
+.cal-opts{margin-top:3px;}
+.cal-opt{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;border:none;cursor:pointer;transition:background .1s;background:none;width:100%;text-align:left;}
+.cal-opt:hover{background:var(--accent-light);}
 .cal-opt.sel{background:var(--accent-light);}
-.cal-opt.sel .cal-opt-dot{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px currentColor;}
-.cal-opt-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cal-opt-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 .pri-row{display:flex;gap:6px;}
 .pri-btn{flex:1;padding:8px 4px;border-radius:4px;border:1px solid var(--border);font-size:12px;font-weight:400;font-family:inherit;background:none;cursor:pointer;text-align:center;transition:all .15s;}
 .pri-btn:hover{background:#f1f3f4;}
@@ -1035,7 +1043,17 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <h2 id="evShTitle">Novo evento</h2>
     <div class="sheet-scroll">
       <div class="f"><label>Título</label><input type="text" id="evTitle" placeholder="Nome do evento..." autocomplete="off"/></div>
-      <div class="f"><label>Agenda</label><div class="cal-opts" id="evCalOpts"></div></div>
+      <div class="f" style="position:relative;">
+        <label>Agenda</label>
+        <div class="cal-sel-trigger" id="evCalTrigger">
+          <div class="cal-sel-trigger-dot" id="evCalTriggerDot"></div>
+          <span class="cal-sel-trigger-name" id="evCalTriggerName">Selecionar agenda</span>
+          <span class="cal-sel-trigger-arrow">▾</span>
+        </div>
+        <div class="cal-sel-popover" id="evCalPopover">
+          <div class="cal-sel-list"><div class="cal-opts" id="evCalOpts"></div></div>
+        </div>
+      </div>
       <div class="f sh-color-block">
         <label>Cor do evento</label>
         <div class="cp-wrap" id="evCP"></div>
@@ -1100,7 +1118,17 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <h2 id="taskShTitle">Nova tarefa</h2>
     <div class="sheet-scroll">
       <div class="f"><label>Título</label><input type="text" id="taskTitle" placeholder="O que fazer..." autocomplete="off"/></div>
-      <div class="f"><label>Agenda</label><div class="cal-opts" id="taskCalOpts"></div></div>
+      <div class="f" style="position:relative;">
+        <label>Agenda</label>
+        <div class="cal-sel-trigger" id="taskCalTrigger">
+          <div class="cal-sel-trigger-dot" id="taskCalTriggerDot"></div>
+          <span class="cal-sel-trigger-name" id="taskCalTriggerName">Selecionar agenda</span>
+          <span class="cal-sel-trigger-arrow">▾</span>
+        </div>
+        <div class="cal-sel-popover" id="taskCalPopover">
+          <div class="cal-sel-list"><div class="cal-opts" id="taskCalOpts"></div></div>
+        </div>
+      </div>
       <div class="f sh-color-block">
         <label>Cor da tarefa</label>
         <div class="cp-wrap" id="taskCP"></div>
@@ -1907,33 +1935,65 @@ function setupEmojiCustomInput(prefix, getCb, setCb){
 // ══════════════════════════════════════════════
 // CAL SELECTOR
 // ══════════════════════════════════════════════
+// calOpts dropdown — works both in trigger/popover mode and plain list mode
 function buildCalOpts(id,selId,cb){
-  const el=document.getElementById(id);el.innerHTML='';
-  const parents=cals.filter(c=>!c.parentId);
-  const children=cals.filter(c=>c.parentId);
-  parents.forEach(cal=>{
+  const el=document.getElementById(id);if(!el)return;el.innerHTML='';
+  // Detect if there's a trigger (dropdown mode) or plain list
+  const prefix=id.replace('CalOpts',''); // 'ev' | 'task' | 'import'
+  const trigger=document.getElementById(prefix+'CalTrigger');
+  const popover=document.getElementById(prefix+'CalPopover');
+  const triggerDot=document.getElementById(prefix+'CalTriggerDot');
+  const triggerName=document.getElementById(prefix+'CalTriggerName');
+
+  // Flatten all cals (parents + children) into one list for dropdown
+  const allCals=[...cals.filter(c=>!c.parentId),...cals.filter(c=>c.parentId)];
+
+  function updateTrigger(calId){
+    if(!trigger)return;
+    const cal=cals.find(c=>c.id===calId);
+    if(cal){
+      triggerDot.style.background=cal.color;
+      triggerName.textContent=cal.emoji+' '+cal.name;
+      triggerName.style.color='var(--text)';
+    }
+  }
+
+  function closePopover(){
+    if(popover)popover.classList.remove('open');
+  }
+
+  allCals.forEach(cal=>{
     const isSel=cal.id===selId;
     const o=document.createElement('div');o.className='cal-opt'+(isSel?' sel':'');
-    o.innerHTML=`<div class="cal-opt-dot" style="background:${cal.color};color:${cal.color}"></div><span style="font-size:13px;font-weight:${isSel?'600':'400'};color:var(--text)">${cal.emoji} ${cal.name}</span>`;
+    o.innerHTML=`<div class="cal-opt-dot" style="background:${cal.color}"></div><span style="font-size:13px;font-weight:${isSel?'600':'400'}">${cal.emoji} ${cal.name}</span>`;
     o.addEventListener('click',()=>{
       cb(cal.id);
       el.querySelectorAll('.cal-opt').forEach(x=>{x.classList.remove('sel');x.querySelector('span').style.fontWeight='400';});
       o.classList.add('sel');o.querySelector('span').style.fontWeight='600';
+      updateTrigger(cal.id);
+      closePopover();
     });
     el.appendChild(o);
-    children.filter(c=>c.parentId===cal.id).forEach(sub=>{
-      const isSubSel=sub.id===selId;
-      const s=document.createElement('div');s.className='cal-opt'+(isSubSel?' sel':'');
-      s.style.paddingLeft='28px';
-      s.innerHTML=`<div class="cal-opt-dot" style="background:${sub.color};color:${sub.color}"></div><span style="font-size:12px;font-weight:${isSubSel?'600':'400'};color:${isSubSel?'var(--text)':'var(--muted)'}">${sub.emoji} ${sub.name}</span>`;
-      s.addEventListener('click',()=>{
-        cb(sub.id);
-        el.querySelectorAll('.cal-opt').forEach(x=>{x.classList.remove('sel');x.querySelector('span').style.fontWeight='400';});
-        s.classList.add('sel');s.querySelector('span').style.fontWeight='600';
-      });
-      el.appendChild(s);
-    });
   });
+
+  updateTrigger(selId);
+
+  // Setup trigger click (only once — check flag)
+  if(trigger&&!trigger._calOptsReady){
+    trigger._calOptsReady=true;
+    trigger.addEventListener('click',e=>{
+      e.stopPropagation();
+      // close any other open popovers
+      document.querySelectorAll('.cal-sel-popover.open').forEach(p=>p.classList.remove('open'));
+      if(!popover)return;
+      const r=trigger.getBoundingClientRect();
+      popover.style.top=(r.bottom+4)+'px';
+      popover.style.left=r.left+'px';
+      popover.style.width=r.width+'px';
+      popover.classList.toggle('open');
+    });
+    document.addEventListener('click',closePopover,{capture:true,passive:true});
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -2005,16 +2065,15 @@ function renderCalList(){
     if(hasSubs&&expanded){
       subs.forEach(sub=>{
         const subItem=document.createElement('div');subItem.className='cal-item cal-subitem';
-        // tiny square indicator
-        const sq=document.createElement('div');sq.className='cal-sub-square';
         const subChk=document.createElement('div');subChk.className='cal-chk'+(sub.vis?' on':'');
         subChk.style.color=sub.color;subChk.style.borderColor=sub.color;
         subChk.addEventListener('click',e=>{e.stopPropagation();sub.vis=!sub.vis;sv('tb2_cals',cals);renderCalList();renderAll();});
         const subNm=document.createElement('span');subNm.className='cal-name';
+        subNm.style.color='var(--muted)';subNm.style.fontSize='11.5px';
         subNm.textContent=sub.name;
         const subMb=document.createElement('button');subMb.className='cal-menu-btn';subMb.textContent='⋮';
         subMb.addEventListener('click',e=>{e.stopPropagation();openCtx(e,sub.id);});
-        subItem.appendChild(sq);subItem.appendChild(subChk);subItem.appendChild(subNm);subItem.appendChild(subMb);
+        subItem.appendChild(subChk);subItem.appendChild(subNm);subItem.appendChild(subMb);
         el.appendChild(subItem);
       });
     }
@@ -2730,6 +2789,7 @@ function openNewEv(date,start,end){
   document.getElementById('evRepeatEnd').value='';
   selEvCal=cals[0]?.id||null;
   evColor=cals[0]?.color||PRESETS[0];
+  {const _t=document.getElementById('evCalTrigger');if(_t)_t._calOptsReady=false;}
   buildCalOpts('evCalOpts',selEvCal,id=>{
     selEvCal=id;
     const c=cals.find(x=>x.id===id);
@@ -2763,6 +2823,7 @@ function openEditEv(ev){
   document.getElementById('evRepeatEnd').value=ev.repeatEnd||'';
   selEvCal=ev.calId||cals[0]?.id||null;
   {const _ec=cals.find(c=>c.id===selEvCal);evColor=ev.color||_ec?.color||PRESETS[0];}
+  {const _t=document.getElementById('evCalTrigger');if(_t)_t._calOptsReady=false;}
   buildCalOpts('evCalOpts',selEvCal,id=>{
     selEvCal=id;
     const c=cals.find(x=>x.id===id);
@@ -2818,6 +2879,7 @@ function openNewTask(date){
   selTaskCal=cals[0]?.id||null;
   taskColor=cals[0]?.color||PRESETS[1];
   selPri='med';
+  {const _t=document.getElementById('taskCalTrigger');if(_t)_t._calOptsReady=false;}
   buildCalOpts('taskCalOpts',selTaskCal,id=>{
     selTaskCal=id;
     const c=cals.find(x=>x.id===id);
@@ -2845,6 +2907,7 @@ function openEditTask(t){
   selTaskCal=t.calId||cals[0]?.id||null;
   {const _tc=cals.find(c=>c.id===selTaskCal);taskColor=t.color||_tc?.color||PRESETS[1];}
   selPri=t.priority||'med';
+  {const _t=document.getElementById('taskCalTrigger');if(_t)_t._calOptsReady=false;}
   buildCalOpts('taskCalOpts',selTaskCal,id=>{
     selTaskCal=id;
     const c=cals.find(x=>x.id===id);
