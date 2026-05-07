@@ -596,16 +596,24 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .fab-lbl{background:rgba(32,33,36,.8);color:#fff;font-size:12px;font-weight:500;padding:5px 12px;border-radius:4px;white-space:nowrap;}
 .fab-circ{width:40px;height:40px;border-radius:50%;border:none;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.12);cursor:pointer;background:#fff;}
 
-/* ── SHEETS ── */
-.sheet-ov{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;z-index:400;opacity:0;pointer-events:none;transition:opacity .2s;}
+/* ── SHEETS — right-side panel ── */
+.sheet-ov{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:stretch;justify-content:flex-end;z-index:400;opacity:0;pointer-events:none;transition:opacity .22s;}
 .sheet-ov.open{opacity:1;pointer-events:all;}
-.sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:14px 20px 0;width:100%;height:560px;max-height:88dvh;overflow:hidden;-webkit-overflow-scrolling:touch;transform:translateY(100%);transition:transform .26s cubic-bezier(.32,1,.23,1);display:flex;flex-direction:column;}
-.sheet-ov.open .sheet{transform:translateY(0);}
-.sh-handle{width:36px;height:4px;border-radius:2px;background:#e8eaed;margin:0 auto 12px;flex-shrink:0;}
-.sheet h2{font-family:'Fraunces',serif;font-size:18px;font-weight:300;font-style:italic;margin-bottom:12px;color:var(--text);flex-shrink:0;}
-/* scrollable body inside fixed sheet */
+.sheet{background:var(--surface);border-radius:16px 0 0 16px;padding:0;width:min(420px,96vw);height:100%;max-height:100dvh;overflow:hidden;-webkit-overflow-scrolling:touch;transform:translateX(100%);transition:transform .28s cubic-bezier(.32,1,.23,1);display:flex;flex-direction:column;}
+.sheet-ov.open .sheet{transform:translateX(0);}
+/* sheet inner header */
+.sheet-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 10px;flex-shrink:0;border-bottom:1px solid var(--border);}
+.sheet h2{font-family:'Fraunces',serif;font-size:18px;font-weight:300;font-style:italic;margin:0;color:var(--text);}
+.sheet-close-btn{background:none;border:none;width:30px;height:30px;border-radius:50%;font-size:18px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0;}
+.sheet-close-btn:hover{background:var(--accent-light);color:var(--accent);}
+.sh-handle{display:none;}
+/* scrollable body inside sheet */
 .sheet>.f,.sheet>.f-row,.sheet>.cal-opts,.sheet>.cp-wrap{flex-shrink:0;}
-.sheet-scroll{flex:1;overflow-y:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+.sheet-scroll{flex:1;overflow-y:auto;padding:14px 20px 4px;-webkit-overflow-scrolling:touch;}
+.sheet-scroll::-webkit-scrollbar{width:4px;}
+.sheet-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+/* actions bar at bottom */
+.sh-acts{padding:10px 20px calc(10px + var(--safe-b));border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;background:var(--surface);}
 .f{margin-bottom:12px;}
 .f label{display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
 .f input,.f select,.f textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-appearance:none;transition:border-color .15s;}
@@ -926,10 +934,6 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
   .fab{right:28px;bottom:28px;width:54px;height:54px;}
   .fab-menu{right:28px;bottom:96px;}
   .add-desktop-btn{display:none!important;}
-  /* Sheets become centered modals */
-  .sheet-ov{align-items:center;}
-  .sheet{border-radius:16px;max-width:480px;margin:auto;height:600px;max-height:88vh;}
-  .sh-handle{display:none;}
   .period-label{font-size:20px;}
 }
 @media(min-width:700px){
@@ -1069,8 +1073,10 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 <!-- EVENT SHEET -->
 <div class="sheet-ov" id="evSheet">
   <div class="sheet">
-    <div class="sh-handle"></div>
-    <h2 id="evShTitle">Novo evento</h2>
+    <div class="sheet-header">
+      <h2 id="evShTitle">Novo evento</h2>
+      <button class="sheet-close-btn" id="closeEvSheet">×</button>
+    </div>
     <div class="sheet-scroll">
       <div class="f"><label>Título</label><input type="text" id="evTitle" placeholder="Nome do evento..." autocomplete="off"/></div>
       <div class="f" style="position:relative;">
@@ -1134,7 +1140,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="f" id="evRepeatEndRow" style="display:none"><label>Repetir até</label><input type="date" id="evRepeatEnd"/></div>
     </div>
     <div class="sh-acts">
-      <button class="btn-cancel" id="closeEvSheet">Cancelar</button>
+      <button class="btn-cancel" id="closeEvSheet2">Cancelar</button>
       <button class="btn-save" id="saveEvBtn" style="background:var(--accent)">Salvar</button>
     </div>
   </div>
@@ -1143,8 +1149,10 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 <!-- TASK SHEET -->
 <div class="sheet-ov" id="taskSheet">
   <div class="sheet">
-    <div class="sh-handle"></div>
-    <h2 id="taskShTitle">Nova tarefa</h2>
+    <div class="sheet-header">
+      <h2 id="taskShTitle">Nova tarefa</h2>
+      <button class="sheet-close-btn" id="closeTaskSheet">×</button>
+    </div>
     <div class="sheet-scroll">
       <div class="f"><label>Título</label><input type="text" id="taskTitle" placeholder="O que fazer..." autocomplete="off"/></div>
       <div class="f" style="position:relative;">
@@ -1181,7 +1189,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="f"><label>Notas</label><textarea id="taskNotes" placeholder="Observações..."></textarea></div>
     </div>
     <div class="sh-acts">
-      <button class="btn-cancel" id="closeTaskSheet">Cancelar</button>
+      <button class="btn-cancel" id="closeTaskSheet2">Cancelar</button>
       <button class="btn-save" id="saveTaskBtn" style="background:var(--accent)">Salvar</button>
     </div>
   </div>
@@ -1190,8 +1198,11 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 <!-- READING SHEET -->
 <div class="sheet-ov" id="readingSheet">
   <div class="sheet">
-    <div class="sh-handle"></div>
-    <h2 id="readingShTitle">📖 Novo livro</h2>
+    <div class="sheet-header">
+      <h2 id="readingShTitle">📖 Novo livro</h2>
+      <button class="sheet-close-btn" id="closeReadingSheet">×</button>
+    </div>
+    <div class="sheet-scroll">
     <div class="f"><label>Título do livro</label><input type="text" id="readingTitle" placeholder="Nome do livro..." autocomplete="off"/></div>
     <div class="f"><label>Cor</label><div class="cp-wrap" id="readingCP"></div></div>
     <div class="f"><label>Avaliação</label>
@@ -1205,8 +1216,9 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     </div>
     <div class="f"><label>Data de início</label><input type="date" id="readingStart"/></div>
     <div class="f"><label>Data de fim (opcional)</label><input type="date" id="readingEnd"/></div>
+    </div>
     <div class="sh-acts">
-      <button class="btn-cancel" id="closeReadingSheet">Cancelar</button>
+      <button class="btn-cancel" id="closeReadingSheet2">Cancelar</button>
       <button class="btn-save" id="saveReadingBtn" style="background:#8b6bb1">Salvar</button>
     </div>
   </div>
@@ -1215,8 +1227,11 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 <!-- HABIT SHEET -->
 <div class="sheet-ov" id="habitSheet">
   <div class="sheet">
-    <div class="sh-handle"></div>
-    <h2 id="habitShTitle">Novo hábito</h2>
+    <div class="sheet-header">
+      <h2 id="habitShTitle">Novo hábito</h2>
+      <button class="sheet-close-btn" id="closeHabitSheet">×</button>
+    </div>
+    <div class="sheet-scroll">
     <div class="f"><label>Nome</label><input type="text" id="habitName" placeholder="Ex: Meditar, Beber água..." autocomplete="off"/></div>
     <div class="f"><label>Ícone</label><div class="emoji-row" id="habitEmojiRow"></div></div>
     <div class="f"><label>Cor</label><div class="cp-wrap" id="habitCP"></div></div>
@@ -1231,8 +1246,9 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
         <button class="freq-btn on" data-d="0">Dom</button>
       </div>
     </div>
+    </div>
     <div class="sh-acts">
-      <button class="btn-cancel" id="closeHabitSheet">Cancelar</button>
+      <button class="btn-cancel" id="closeHabitSheet2">Cancelar</button>
       <button class="btn-save" id="saveHabitBtn" style="background:#e65100">Salvar</button>
     </div>
   </div>
@@ -1240,7 +1256,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 
 <!-- NEW CAL SHEET -->
 <div class="sheet-ov" id="newCalSheet">
-  <div class="sheet" style="height:auto;max-height:92dvh;overflow-y:auto;padding-bottom:calc(10px + var(--safe-b));">
+  <div class="sheet" style="">
     <style>
       #newCalSheet .f{margin-bottom:7px;}
       #newCalSheet .f input,#newCalSheet .f select{padding:8px 11px;font-size:14px;}
@@ -1250,8 +1266,11 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       #newCalSheet h2{margin-bottom:8px;font-size:17px;}
       #newCalSheet .sh-acts{margin-top:10px;padding:8px 0 0;}
     </style>
-    <div class="sh-handle"></div>
-    <h2 id="newCalTitle">Nova Agenda</h2>
+    <div class="sheet-header">
+      <h2 id="newCalTitle" style="font-size:17px;">Nova Agenda</h2>
+      <button class="sheet-close-btn" id="closeNewCal">×</button>
+    </div>
+    <div class="sheet-scroll">
     <div class="f"><label>Nome</label><input type="text" id="calName" placeholder="Ex: Trabalho, Pessoal..." autocomplete="off"/></div>
     <div class="f"><label>Sub-agenda de (opcional)</label>
       <select id="calParentSel">
@@ -1264,8 +1283,9 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <label>Paleta própria <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(opcional, até 5 cores)</span></label>
       <div id="calPaletteEditor"></div>
     </div>
+    </div>
     <div class="sh-acts">
-      <button class="btn-cancel" id="closeNewCal">Cancelar</button>
+      <button class="btn-cancel" id="closeNewCalFooter">Cancelar</button>
       <button class="btn-save" id="saveCalBtn" style="background:var(--accent)">Criar</button>
     </div>
   </div>
@@ -1273,7 +1293,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 
 <!-- EDIT CAL SHEET -->
 <div class="sheet-ov" id="editCalSheet">
-  <div class="sheet" style="height:auto;max-height:92dvh;overflow-y:auto;padding-bottom:calc(10px + var(--safe-b));">
+  <div class="sheet" style="">
     <style>
       #editCalSheet .f{margin-bottom:7px;}
       #editCalSheet .f input,#editCalSheet .f select{padding:8px 11px;font-size:14px;}
@@ -1283,8 +1303,11 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       #editCalSheet h2{margin-bottom:8px;font-size:17px;}
       #editCalSheet .sh-acts{margin-top:10px;padding:8px 0 0;}
     </style>
-    <div class="sh-handle"></div>
-    <h2>Editar Agenda</h2>
+    <div class="sheet-header">
+      <h2 style="font-size:17px;">Editar Agenda</h2>
+      <button class="sheet-close-btn" id="closeEditCal">×</button>
+    </div>
+    <div class="sheet-scroll">
     <div class="f"><label>Nome</label><input type="text" id="editCalName" autocomplete="off"/></div>
     <div class="f"><label>Sub-agenda de (opcional)</label>
       <select id="editCalParentSel">
@@ -1300,24 +1323,31 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <label>Paleta própria <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(opcional, até 5 cores)</span></label>
       <div id="editCalPaletteEditor"></div>
     </div>
+    </div>
     <div style="display:flex;align-items:flex-start;gap:8px;background:#fdf6ee;border:1px solid #e8c5b8;border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:12px;color:#8a5a3a;line-height:1.5;">
       <span style="font-size:15px;flex-shrink:0;">🎨</span>
       <span>Ao salvar, a nova cor será aplicada a <strong>todos os eventos e tarefas</strong> desta agenda, incluindo os que tinham cor personalizada.</span>
     </div>
+    </div>
     <div class="sh-acts">
       <button class="btn-danger" id="deleteCalBtn">Excluir</button>
+      <button class="btn-cancel" id="closeEditCalFooter">Cancelar</button>
       <button class="btn-save" id="saveEditCalBtn" style="background:var(--accent);flex:2">Salvar</button>
     </div>
-    <button class="btn-cancel" style="width:100%;margin-top:8px;cursor:pointer;" id="closeEditCal">Cancelar</button>
   </div>
 </div>
 
 <!-- EVENT DETAIL -->
 <div class="sheet-ov" id="evDetail">
   <div class="sheet">
-    <div class="sh-handle"></div>
+    <div class="sheet-header" style="border-bottom:none;padding-bottom:6px;">
+      <div style="flex:1;"></div>
+      <button class="sheet-close-btn" onclick="document.getElementById('evDetail').classList.remove('open')">×</button>
+    </div>
+    <div class="sheet-scroll">
     <div class="det-title" id="evDetTitle"></div>
     <div class="det-sub" id="evDetSub"></div>
+    <div class="det-notes" id="evDetNotes" style="margin-bottom:16px;"></div>
     <div class="det-acts">
       <button class="det-btn edit" id="evDetEdit">✏️ Editar</button>
       <button class="det-btn del" id="evDetDel">🗑 Remover</button>
@@ -1330,13 +1360,18 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
         <button class="recur-del-btn danger" id="evDelAllRecur">🗑 Todos os eventos da série</button>
       </div>
     </div>
+    </div>
   </div>
 </div>
 
 <!-- TASK DETAIL -->
 <div class="sheet-ov" id="taskDetail">
   <div class="sheet">
-    <div class="sh-handle"></div>
+    <div class="sheet-header" style="border-bottom:none;padding-bottom:6px;">
+      <div style="flex:1;"></div>
+      <button class="sheet-close-btn" onclick="document.getElementById('taskDetail').classList.remove('open')">×</button>
+    </div>
+    <div class="sheet-scroll">
     <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:4px;">
       <div id="tdChk" style="width:22px;height:22px;border-radius:50%;border:2px solid #9b9890;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:4px;transition:all .2s;"></div>
       <div class="det-title" id="tdTitle" style="margin-bottom:0;flex:1;"></div>
@@ -1355,18 +1390,23 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
         <button class="recur-del-btn danger" id="tdDelAllRecur">🗑 Todas as tarefas da série</button>
       </div>
     </div>
+    </div>
   </div>
 </div>
 
 <!-- NOTE QUICK SHEET -->
 <div class="sheet-ov" id="noteSheet">
   <div class="sheet">
-    <div class="sh-handle"></div>
-    <h2>📝 Anotação</h2>
+    <div class="sheet-header">
+      <h2>📝 Anotação</h2>
+      <button class="sheet-close-btn" id="closeNoteSheet">×</button>
+    </div>
+    <div class="sheet-scroll">
     <div class="f"><label>Data</label><input type="date" id="noteDate"/></div>
     <div class="f"><label>Anotação</label><textarea id="noteText" placeholder="Pensamentos, ideias, observações do dia..." rows="5"></textarea></div>
+    </div>
     <div class="sh-acts">
-      <button class="btn-cancel" id="closeNoteSheet">Cancelar</button>
+      <button class="btn-cancel" id="closeNoteSheet2">Cancelar</button>
       <button class="btn-save" id="saveNoteBtn" style="background:var(--accent)">Salvar</button>
     </div>
   </div>
@@ -1374,25 +1414,31 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 
 <!-- DAY QUICK CREATE POPUP -->
 <div class="sheet-ov" id="quickPopup">
-  <div class="sheet" style="height:auto;max-height:70dvh;">
-    <div class="sh-handle"></div>
-    <h2 id="quickPopupTitle">O que criar?</h2>
-    <div style="display:flex;flex-direction:column;gap:8px;padding-bottom:calc(16px + var(--safe-b));">
-      <button class="quick-btn" id="qpEvent">📅 <span>Evento</span></button>
-      <button class="quick-btn" id="qpTask">✅ <span>Tarefa</span></button>
-      <button class="quick-btn" id="qpReading">📖 <span>Livro / Leitura</span></button>
-      <button class="quick-btn" id="qpNote">📝 <span>Anotação / Pensamento</span></button>
-      <button class="quick-btn" id="qpHabit">🌿 <span>Hábito</span></button>
+  <div class="sheet">
+    <div class="sheet-header">
+      <h2 id="quickPopupTitle">O que criar?</h2>
+      <button class="sheet-close-btn" onclick="document.getElementById('quickPopup').classList.remove('open')">×</button>
+    </div>
+    <div class="sheet-scroll">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="quick-btn" id="qpEvent">📅 <span>Evento</span></button>
+        <button class="quick-btn" id="qpTask">✅ <span>Tarefa</span></button>
+        <button class="quick-btn" id="qpReading">📖 <span>Livro / Leitura</span></button>
+        <button class="quick-btn" id="qpNote">📝 <span>Anotação / Pensamento</span></button>
+        <button class="quick-btn" id="qpHabit">🌿 <span>Hábito</span></button>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- IMPORT ICS SHEET -->
 <div class="sheet-ov" id="importSheet">
-  <div class="sheet" style="display:flex;flex-direction:column;max-height:90dvh;">
-    <div class="sh-handle" style="flex-shrink:0;"></div>
-    <h2 style="margin-bottom:6px;flex-shrink:0;">📥 Importar Google Agenda</h2>
-    <div style="overflow-y:auto;flex:1;padding-bottom:8px;">
+  <div class="sheet" style="">
+    <div class="sheet-header">
+      <h2>📥 Importar Google Agenda</h2>
+      <button class="sheet-close-btn" id="closeImportSheet">×</button>
+    </div>
+    <div style="overflow-y:auto;flex:1;padding:14px 20px 8px;">
       <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;">
         No Google Agenda: <strong>⚙️ Configurações → Importar e exportar → Exportar</strong>. Descompacte o .zip e selecione o arquivo <strong>.ics</strong> aqui.
       </div>
@@ -1422,7 +1468,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       </div>
     </div>
     <div class="sh-acts" style="flex-shrink:0;padding-top:8px;border-top:1px solid var(--border);margin-top:4px;">
-      <button class="btn-cancel" id="closeImportSheet">Cancelar</button>
+      <button class="btn-cancel" id="closeImportSheetFooter">Cancelar</button>
       <button class="btn-save" id="doImportBtn" style="background:var(--accent);opacity:.4;pointer-events:none;">Importar</button>
     </div>
   </div>
@@ -1430,11 +1476,10 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 
 <!-- PALETTE MANAGER -->
 <div class="sheet-ov" id="paletteSheet">
-  <div class="sheet" style="height:auto;max-height:88dvh;">
-    <div class="sh-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0;">
-      <h2 style="margin:0;font-size:17px;">🎨 Paletas de Cores</h2>
-      <button id="closePaletteSheet" style="background:none;border:1px solid var(--border);border-radius:50%;width:30px;height:30px;font-size:15px;color:var(--muted);cursor:pointer;">×</button>
+  <div class="sheet" style="">
+    <div class="sheet-header">
+      <h2 style="font-size:17px;">🎨 Paletas de Cores</h2>
+      <button id="closePaletteSheet" class="sheet-close-btn">×</button>
     </div>
     <!-- Tabelas de referência de cores -->
     <div id="colorTablesSection" style="padding:0 4px;">
@@ -1461,16 +1506,15 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 
 <!-- DAY SUMMARY POPUP -->
 <div class="sheet-ov" id="daySummaryPopup">
-  <div class="sheet" style="height:520px;max-height:88dvh;">
-    <div class="sh-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0;">
-      <button id="daySumPrev" style="background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;font-size:16px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+  <div class="sheet" style="">
+    <div class="sheet-header">
+      <button id="daySumPrev" class="sheet-close-btn" style="font-size:16px;">‹</button>
       <div style="text-align:center;flex:1;">
         <div id="daySumTitle" style="font-family:'Fraunces',serif;font-size:17px;font-weight:400;font-style:italic;color:var(--text);text-transform:uppercase;letter-spacing:.3px;"></div>
         <div id="daySumCount" style="font-size:11px;color:var(--muted);margin-top:2px;"></div>
       </div>
-      <button id="daySumNext" style="background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;font-size:16px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
-      <button id="daySumClose" style="background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;font-size:16px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:8px;">×</button>
+      <button id="daySumNext" class="sheet-close-btn" style="font-size:16px;">›</button>
+      <button id="daySumClose" class="sheet-close-btn">×</button>
     </div>
     <div class="sheet-scroll" id="daySumBody"></div>
     <div style="flex-shrink:0;padding:10px 0 calc(10px + var(--safe-b));border-top:1px solid var(--border);margin-top:4px;">
@@ -3730,6 +3774,7 @@ function openNoteSheet(date){
   setTimeout(()=>document.getElementById('noteText').focus(),200);
 }
 document.getElementById('closeNoteSheet').addEventListener('click',()=>closeSh('noteSheet'));
+document.getElementById('closeNoteSheet2')?.addEventListener('click',()=>closeSh('noteSheet'));
 document.getElementById('saveNoteBtn').addEventListener('click',async()=>{
   const ds=document.getElementById('noteDate').value;
   const txt=document.getElementById('noteText').value;
@@ -4046,6 +4091,7 @@ function doImport(){
 document.getElementById('syncBtn').addEventListener('click',manualSync);
 document.getElementById('openImportBtn').addEventListener('click',openImportSheet);
 document.getElementById('closeImportSheet').addEventListener('click',()=>closeSh('importSheet'));
+document.getElementById('closeImportSheetFooter')?.addEventListener('click',()=>closeSh('importSheet'));
 document.getElementById('doImportBtn').addEventListener('click',doImport);
 document.getElementById('importDropZone').addEventListener('click',()=>document.getElementById('importFileInput').click());
 document.getElementById('importFileInput').addEventListener('change',e=>{
@@ -4057,6 +4103,7 @@ document.getElementById('importFileInput').addEventListener('change',e=>{
   reader.readAsText(file);
 });
 document.getElementById('closeReadingSheet').addEventListener('click',()=>closeSh('readingSheet'));
+document.getElementById('closeReadingSheet2')?.addEventListener('click',()=>closeSh('readingSheet'));
 document.getElementById('saveReadingBtn').addEventListener('click',saveReading);
 // Star picker interactions
 document.querySelectorAll('#readingStars .star-btn').forEach(b=>{
@@ -4070,14 +4117,19 @@ document.querySelectorAll('#readingStars .star-btn').forEach(b=>{
   });
 });
 document.getElementById('closeEvSheet').addEventListener('click',()=>closeSh('evSheet'));
+document.getElementById('closeEvSheet2')?.addEventListener('click',()=>closeSh('evSheet'));
 document.getElementById('saveEvBtn').addEventListener('click',saveEv);
 document.getElementById('closeTaskSheet').addEventListener('click',()=>closeSh('taskSheet'));
+document.getElementById('closeTaskSheet2')?.addEventListener('click',()=>closeSh('taskSheet'));
 document.getElementById('saveTaskBtn').addEventListener('click',saveTask);
 document.getElementById('closeHabitSheet').addEventListener('click',()=>closeSh('habitSheet'));
+document.getElementById('closeHabitSheet2')?.addEventListener('click',()=>closeSh('habitSheet'));
 document.getElementById('saveHabitBtn').addEventListener('click',saveHabit);
 document.getElementById('closeNewCal').addEventListener('click',()=>closeSh('newCalSheet'));
+document.getElementById('closeNewCalFooter')?.addEventListener('click',()=>closeSh('newCalSheet'));
 document.getElementById('saveCalBtn').addEventListener('click',saveCal);
 document.getElementById('closeEditCal').addEventListener('click',()=>closeSh('editCalSheet'));
+document.getElementById('closeEditCalFooter')?.addEventListener('click',()=>closeSh('editCalSheet'));
 document.getElementById('saveEditCalBtn').addEventListener('click',saveEditCal);
 document.getElementById('deleteCalBtn').addEventListener('click',deleteCal);
 document.getElementById('addDesktop').addEventListener('click',()=>{if(curView==='tasks')openNewTask();else if(curView==='habits')openNewHabit();else if(curView==='hweek'&&hweekTab==='notes')openNoteSheet();else openNewEv();});
