@@ -621,11 +621,12 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .cp-native{width:32px;height:32px;padding:2px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;}
 .cp-hex{flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--bg);}
 .cp-preview{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;}
-.cal-opts{display:flex;flex-direction:column;gap:3px;margin-top:3px;padding:2px;}
-.cal-opt{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;background:none;}
-.cal-opt:hover{background:var(--accent-light);}
-.cal-opt.sel{background:var(--accent-light);box-shadow:0 0 0 1.5px var(--accent);}
-.cal-opt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.cal-opts{display:flex;flex-direction:column;gap:1px;margin-top:2px;}
+.cal-opt{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;border:none;cursor:pointer;transition:background .12s;background:none;width:100%;text-align:left;}
+.cal-opt:hover{background:var(--bg);}
+.cal-opt.sel{background:var(--accent-light);}
+.cal-opt.sel .cal-opt-dot{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px currentColor;}
+.cal-opt-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 .pri-row{display:flex;gap:6px;}
 .pri-btn{flex:1;padding:8px 4px;border-radius:4px;border:1px solid var(--border);font-size:12px;font-weight:400;font-family:inherit;background:none;cursor:pointer;text-align:center;transition:all .15s;}
 .pri-btn:hover{background:#f1f3f4;}
@@ -1911,16 +1912,25 @@ function buildCalOpts(id,selId,cb){
   const parents=cals.filter(c=>!c.parentId);
   const children=cals.filter(c=>c.parentId);
   parents.forEach(cal=>{
-    const o=document.createElement('div');o.className='cal-opt'+(cal.id===selId?' sel':'');
-    o.innerHTML=`<div class="cal-opt-dot" style="background:${cal.color}"></div><span style="font-size:13px;font-weight:500">${cal.emoji} ${cal.name}</span>`;
-    o.addEventListener('click',()=>{cb(cal.id);el.querySelectorAll('.cal-opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');});
+    const isSel=cal.id===selId;
+    const o=document.createElement('div');o.className='cal-opt'+(isSel?' sel':'');
+    o.innerHTML=`<div class="cal-opt-dot" style="background:${cal.color};color:${cal.color}"></div><span style="font-size:13px;font-weight:${isSel?'600':'400'};color:var(--text)">${cal.emoji} ${cal.name}</span>`;
+    o.addEventListener('click',()=>{
+      cb(cal.id);
+      el.querySelectorAll('.cal-opt').forEach(x=>{x.classList.remove('sel');x.querySelector('span').style.fontWeight='400';});
+      o.classList.add('sel');o.querySelector('span').style.fontWeight='600';
+    });
     el.appendChild(o);
-    // sub-agendas indented
     children.filter(c=>c.parentId===cal.id).forEach(sub=>{
-      const s=document.createElement('div');s.className='cal-opt'+(sub.id===selId?' sel':'');
-      s.style.paddingLeft='24px';
-      s.innerHTML=`<div class="cal-opt-dot" style="background:${sub.color}"></div><span style="font-size:12px;font-weight:400;color:var(--muted)">└ ${sub.emoji} ${sub.name}</span>`;
-      s.addEventListener('click',()=>{cb(sub.id);el.querySelectorAll('.cal-opt').forEach(x=>x.classList.remove('sel'));s.classList.add('sel');});
+      const isSubSel=sub.id===selId;
+      const s=document.createElement('div');s.className='cal-opt'+(isSubSel?' sel':'');
+      s.style.paddingLeft='28px';
+      s.innerHTML=`<div class="cal-opt-dot" style="background:${sub.color};color:${sub.color}"></div><span style="font-size:12px;font-weight:${isSubSel?'600':'400'};color:${isSubSel?'var(--text)':'var(--muted)'}">${sub.emoji} ${sub.name}</span>`;
+      s.addEventListener('click',()=>{
+        cb(sub.id);
+        el.querySelectorAll('.cal-opt').forEach(x=>{x.classList.remove('sel');x.querySelector('span').style.fontWeight='400';});
+        s.classList.add('sel');s.querySelector('span').style.fontWeight='600';
+      });
       el.appendChild(s);
     });
   });
