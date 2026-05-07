@@ -842,6 +842,16 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .cp-section-divider::before,.cp-section-divider::after{content:'';flex:1;height:1px;background:var(--border);}
 .add-palette-entry{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:8px;border:1.5px dashed var(--border);cursor:pointer;color:var(--muted);font-size:12px;transition:all .1s;}
 .add-palette-entry:hover{border-color:var(--accent);color:var(--accent);}
+/* ── UNIFIED COLOR BLOCK IN SHEETS ── */
+.sh-color-block .cp-wrap{margin-bottom:0;}
+.color-ref-tables{margin-top:10px;}
+.color-ref-tables-header{display:flex;align-items:center;gap:6px;margin:8px 0 6px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
+.color-ref-tables-header::before,.color-ref-tables-header::after{content:'';flex:1;height:1px;background:var(--border);}
+.color-ref-swatches{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;}
+.color-ref-swatch{width:26px;height:26px;border-radius:50%;border:3px solid transparent;cursor:pointer;flex-shrink:0;transition:transform .15s,box-shadow .15s;position:relative;}
+.color-ref-swatch:hover{transform:scale(1.15);}
+.color-ref-swatch.sel{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--text);}
+.color-ref-group-label{font-size:10px;color:var(--muted);font-weight:500;margin-bottom:4px;margin-top:2px;}
 
 .dsum-section{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 6px;display:flex;align-items:center;gap:6px;}
 .dsum-section:first-child{margin-top:0;}
@@ -1024,6 +1034,13 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <h2 id="evShTitle">Novo evento</h2>
     <div class="sheet-scroll">
       <div class="f"><label>Título</label><input type="text" id="evTitle" placeholder="Nome do evento..." autocomplete="off"/></div>
+      <div class="f"><label>Agenda</label><div class="cal-opts" id="evCalOpts"></div></div>
+      <div class="f sh-color-block">
+        <label>Cor do evento</label>
+        <div class="cp-wrap" id="evCP"></div>
+        <div id="evColorTables" class="color-ref-tables"></div>
+        <div id="evPaletteSection"></div>
+      </div>
       <div class="f"><label>Ícone <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(opcional)</span></label>
         <div class="emoji-picker-wrap">
           <div class="emoji-picker-top">
@@ -1033,7 +1050,6 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
           </div>
         </div>
       </div>
-      <div class="f"><label>Agenda</label><div class="cal-opts" id="evCalOpts"></div></div>
       <div class="f"><label>Data</label><input type="date" id="evDate"/></div>
       <div class="f" style="display:flex;align-items:center;gap:10px;">
         <label style="margin:0;flex:1">Dia inteiro</label>
@@ -1068,7 +1084,6 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
         </div>
       </div>
       <div class="f" id="evRepeatEndRow" style="display:none"><label>Repetir até</label><input type="date" id="evRepeatEnd"/></div>
-      <div class="f"><label>Cor do evento</label><div class="cp-wrap" id="evCP"></div><div id="evPaletteSection"></div></div>
     </div>
     <div class="sh-acts">
       <button class="btn-cancel" id="closeEvSheet">Cancelar</button>
@@ -1084,6 +1099,13 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <h2 id="taskShTitle">Nova tarefa</h2>
     <div class="sheet-scroll">
       <div class="f"><label>Título</label><input type="text" id="taskTitle" placeholder="O que fazer..." autocomplete="off"/></div>
+      <div class="f"><label>Agenda</label><div class="cal-opts" id="taskCalOpts"></div></div>
+      <div class="f sh-color-block">
+        <label>Cor da tarefa</label>
+        <div class="cp-wrap" id="taskCP"></div>
+        <div id="taskColorTables" class="color-ref-tables"></div>
+        <div id="taskPaletteSection"></div>
+      </div>
       <div class="f"><label>Ícone <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(opcional)</span></label>
         <div class="emoji-picker-wrap">
           <div class="emoji-picker-top">
@@ -1093,8 +1115,6 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
           </div>
         </div>
       </div>
-      <div class="f"><label>Cor da tarefa</label><div class="cp-wrap" id="taskCP"></div><div id="taskPaletteSection"></div></div>
-      <div class="f"><label>Agenda</label><div class="cal-opts" id="taskCalOpts"></div></div>
       <div class="f"><label>Data</label><input type="date" id="taskDate"/></div>
       <div class="f"><label>Repetir</label>
         <select id="taskRepeat"><option value="none">Não repetir</option><option value="daily">Diariamente</option><option value="weekly">Semanalmente</option><option value="monthly">Mensalmente</option></select>
@@ -1215,17 +1235,10 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       </select>
     </div>
     <div class="f"><label>Ícone</label><div class="emoji-row" id="editCalEmojiRow"></div></div>
-    <div class="f"><label>Cor</label><div class="cp-wrap" id="editCalCP"></div></div>
-    <div class="f">
-      <label>Tabelas de referência <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(clique para aplicar a cor)</span></label>
-      <div style="margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;">&#127807; Tons de Verde</div>
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;" id="editCalGreenTable"></div>
-      </div>
-      <div>
-        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;">&#127800; Tons de Rosa</div>
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;" id="editCalPinkTable"></div>
-      </div>
+    <div class="f sh-color-block">
+      <label>Cor da agenda</label>
+      <div class="cp-wrap" id="editCalCP"></div>
+      <div id="editCalColorTables" class="color-ref-tables"></div>
     </div>
     <div class="f">
       <label>Paleta própria <span style="font-size:10px;color:var(--muted);font-weight:400;font-style:italic;">(opcional, até 5 cores)</span></label>
@@ -1540,6 +1553,7 @@ async function svHabits(){_skip('habits');_guardedSave('habits',async()=>{setSyn
 async function svHabitLogs(){_skip('habitLogs');_guardedSave('habitLogs',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','habitLogs'),{data:habitLogs});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
 async function svCals(){_skip('cals');_guardedSave('cals',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','cals'),{list:cals});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
 async function svPalettes(){_skip('palettes');_guardedSave('palettes',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','palettes'),{list:globalPalettes});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
+async function svCustomColors(){_skip('customColors');_guardedSave('customColors',async()=>{setSyncStatus('syncing');try{await setDoc(doc(db,'agenda','customColors'),{list:customColors});setSyncStatus('ok');}catch(e){setSyncStatus('error');console.error(e);}});}
 async function svNote(ds,text){
   setSyncStatus('syncing');
   try{
@@ -1579,14 +1593,14 @@ function sv(k,v){
 // FIRESTORE REAL-TIME LISTENERS
 // ══════════════════════════════════════════════
 // Flags para ignorar o snapshot de eco imediato após um save local
-const _skipNext={cals:0,evs:0,tasks:0,habits:0,habitLogs:0,readingBooks:0,palettes:0};
+const _skipNext={cals:0,evs:0,tasks:0,habits:0,habitLogs:0,readingBooks:0,palettes:0,customColors:0};
 function _skip(key){_skipNext[key]=Date.now();}
 function _shouldSkip(key){const t=_skipNext[key];if(t&&Date.now()-t<5000){_skipNext[key]=0;return true;}return false;}
 
 function initFirestoreListeners(){
   // Track how many critical collections have fired their first snapshot
   let _loadedCount=0;
-  const CRITICAL=6; // palettes, cals, evs, tasks, habits, habitLogs
+  const CRITICAL=7; // palettes, cals, evs, tasks, habits, habitLogs, customColors
   function _onLoaded(){
     _loadedCount++;
     if(_loadedCount>=CRITICAL&&!_firestoreReady){
@@ -1599,6 +1613,25 @@ function initFirestoreListeners(){
 
   onSnapshot(doc(db,'agenda','palettes'),s=>{
     if(!_shouldSkip('palettes')&&s.exists()&&s.data().list){globalPalettes=s.data().list;}
+    _onLoaded();
+  },()=>{_onLoaded();});
+
+  onSnapshot(doc(db,'agenda','customColors'),s=>{
+    if(!_shouldSkip('customColors')){
+      if(s.exists()&&s.data().list&&s.data().list.length>0){
+        customColors=s.data().list;
+      } else {
+        // Migrate from localStorage if Firestore is empty
+        const local=JSON.parse(localStorage.getItem('tb2_customColors')||'[]');
+        if(local.length){customColors=local;svCustomColors();localStorage.removeItem('tb2_customColors');}
+      }
+      // refresh any open color picker saved strips
+      document.querySelectorAll('[id$="_saved"]').forEach(strip=>{
+        const id=strip.id.replace('_saved','');
+        const syncFn=strip._syncColor;
+        if(syncFn)buildSavedStrip(id,syncFn);
+      });
+    }
     _onLoaded();
   },()=>{_onLoaded();});
 
@@ -1646,9 +1679,9 @@ function initFirestoreListeners(){
 }
 
 // saved custom colors (persisted in localStorage)
-let customColors=JSON.parse(localStorage.getItem('tb2_customColors')||'[]');
+let customColors=[]; // synced via Firestore; migrated from localStorage on first load if needed
 function saveCustomColor(hex){
-  if(!customColors.includes(hex)){customColors.push(hex);localStorage.setItem('tb2_customColors',JSON.stringify(customColors));}
+  if(!customColors.includes(hex)){customColors.push(hex);svCustomColors();}
 }
 
 // getCalIdFn: optional fn() that returns the currently selected calId, used to add color to that calendar's palette
@@ -1816,7 +1849,7 @@ function buildSavedStrip(id,syncColor){
   customColors.forEach(hex=>{
     const s=document.createElement('div');s.className='cp-swatch cp-saved-dot';s.style.background=hex;s.title=hex;
     // right click / long press removes
-    s.addEventListener('contextmenu',e=>{e.preventDefault();customColors=customColors.filter(x=>x!==hex);localStorage.setItem('tb2_customColors',JSON.stringify(customColors));buildSavedStrip(id,syncColor);});
+    s.addEventListener('contextmenu',e=>{e.preventDefault();customColors=customColors.filter(x=>x!==hex);svCustomColors();buildSavedStrip(id,syncColor);});
     s.addEventListener('click',()=>syncColor(hex));
     strip.appendChild(s);
   });
@@ -2694,6 +2727,7 @@ function openNewEv(date,start,end){
     buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   });
   buildCP('evCP',evColor,c=>{evColor=c;},()=>selEvCal);
+  buildColorRefTables('evColorTables',c=>{evColor=c;},'evCP');
   buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   buildEmoji('evEmojiRow',EMOJIS,null,e=>{evEmoji=e;});
   document.getElementById('evEmojiNone').classList.add('on');
@@ -2726,6 +2760,7 @@ function openEditEv(ev){
     buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   });
   buildCP('evCP',evColor,c=>{evColor=c;},()=>selEvCal);
+  buildColorRefTables('evColorTables',c=>{evColor=c;},'evCP');
   buildPaletteSection('evPaletteSection',selEvCal,c=>{evColor=c;updCP('evCP',c);});
   buildEmoji('evEmojiRow',EMOJIS,ev.emoji||null,e=>{evEmoji=e;document.getElementById('evEmojiNone').classList.remove('on');document.getElementById('evEmojiCustomBtn').classList.remove('on');document.getElementById('evEmojiCustomInput').classList.remove('visible');});
   // if emoji is custom (not in preset list), show in custom input
@@ -2780,6 +2815,7 @@ function openNewTask(date){
     buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   });
   buildCP('taskCP',taskColor,c=>{taskColor=c;},()=>selTaskCal);
+  buildColorRefTables('taskColorTables',c=>{taskColor=c;},'taskCP');
   buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   buildEmoji('taskEmojiRow',EMOJIS,null,e=>{taskEmoji=e;});
   document.getElementById('taskEmojiCustomBtn').classList.remove('on');
@@ -2806,6 +2842,7 @@ function openEditTask(t){
     buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   });
   buildCP('taskCP',taskColor,c=>{taskColor=c;},()=>selTaskCal);
+  buildColorRefTables('taskColorTables',c=>{taskColor=c;},'taskCP');
   buildPaletteSection('taskPaletteSection',selTaskCal,c=>{taskColor=c;updCP('taskCP',c);});
   buildEmoji('taskEmojiRow',EMOJIS,t.emoji||null,e=>{taskEmoji=e;document.getElementById('taskEmojiNone').classList.remove('on');document.getElementById('taskEmojiCustomBtn').classList.remove('on');document.getElementById('taskEmojiCustomInput').classList.remove('visible');});
   const isPreset=EMOJIS.includes(t.emoji);
@@ -3029,9 +3066,9 @@ function openEditCal(calId){
   document.getElementById('editCalName').value=cal.name;
   buildEmoji('editCalEmojiRow',EMOJIS,selEditCalEmoji,e=>selEditCalEmoji=e);
   buildCP('editCalCP',editCalColor,c=>{editCalColor=c;},()=>editCalId);
+  buildColorRefTables('editCalColorTables',c=>{editCalColor=c;},'editCalCP');
   getEditCalPalette=buildCalPaletteEditor('editCalPaletteEditor',cal.palette||[]);
   populateParentSel('editCalParentSel',calId,cal.parentId||'');
-  buildInlineColorTables('editCalGreenTable','editCalPinkTable',hex=>{editCalColor=hex;updCP('editCalCP',hex);});
   openSh('editCalSheet');
 }
 function saveEditCal(){
@@ -3120,107 +3157,77 @@ let getEditCalPalette=()=>[];
 
 
 function renderColorTables(){
-  const greens=[
-    {hex:'#e8f5e2',label:'Menta suave'},
-    {hex:'#c8e6c0',label:'Pistache'},
-    {hex:'#a5d6a7',label:'Verde água'},
-    {hex:'#81c784',label:'Sage claro'},
-    {hex:'#66bb6a',label:'Verde médio'},
-    {hex:'#4caf50',label:'Verde puro'},
-    {hex:'#43a047',label:'Esmeralda'},
-    {hex:'#388e3c',label:'Verde floresta'},
-    {hex:'#2e7d32',label:'Verde musgo'},
-    {hex:'#1b5e20',label:'Verde escuro'},
-    {hex:'#b5cfa0',label:'Sage pastel'},
-    {hex:'#8fb87a',label:'Sage médio'},
-    {hex:'#6b8f5e',label:'Sage'},
-    {hex:'#4a7c59',label:'Sage profundo'},
-    {hex:'#2d5a3d',label:'Verde noturno'},
-  ];
-  const pinks=[
-    {hex:'#fce4ec',label:'Rosa névoa'},
-    {hex:'#f8bbd9',label:'Rosa pastel'},
-    {hex:'#f48fb1',label:'Rosa claro'},
-    {hex:'#f06292',label:'Rosa médio'},
-    {hex:'#ec407a',label:'Rosa vibrante'},
-    {hex:'#e91e63',label:'Rosa intenso'},
-    {hex:'#c2185b',label:'Rosa escuro'},
-    {hex:'#880e4f',label:'Rosa noturno'},
-    {hex:'#fdd7e4',label:'Blush suave'},
-    {hex:'#e8c5b8',label:'Blush'},
-    {hex:'#f0a0b0',label:'Flamingo'},
-    {hex:'#e07090',label:'Rosa antigo'},
-    {hex:'#d4547a',label:'Rosa framboesa'},
-    {hex:'#c0395e',label:'Cereja'},
-    {hex:'#ff80ab',label:'Rosa neon'},
-  ];
-  function buildTable(id,colors){
+  // Palette sheet uses a larger grid layout — keep the card style here
+  function buildTable(id, colors, labels){
     const el=document.getElementById(id);if(!el)return;el.innerHTML='';
-    colors.forEach(c=>{
+    colors.forEach((hex,i)=>{
       const cell=document.createElement('div');
-      cell.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;';
+      cell.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;';
       const dot=document.createElement('div');
-      dot.style.cssText=`width:100%;aspect-ratio:1;border-radius:8px;background:${c.hex};box-shadow:0 1px 3px rgba(0,0,0,.12);transition:transform .15s;`;
-      dot.addEventListener('mouseenter',()=>dot.style.transform='scale(1.1)');
-      dot.addEventListener('mouseleave',()=>dot.style.transform='');
-      dot.addEventListener('click',()=>{saveCustomColor(c.hex);dot.style.boxShadow=`0 0 0 3px ${c.hex},0 0 0 5px white`;setTimeout(()=>dot.style.boxShadow='0 1px 3px rgba(0,0,0,.12)',1000);});
-      dot.title=`${c.label} — clique para salvar nos presets`;
-      const lbl=document.createElement('div');
-      lbl.style.cssText='font-size:9px;color:var(--muted);text-align:center;line-height:1.2;';
-      lbl.textContent=c.label;
-      cell.appendChild(dot);cell.appendChild(lbl);el.appendChild(cell);
-    });
-  }
-  buildTable('greenTable',greens);
-  buildTable('pinkTable',pinks);
-}
-// Build inline color tables for a specific pair of container ids
-// onSelect(hex) is called when user clicks a color (applies it to the picker)
-function buildInlineColorTables(greenId, pinkId, onSelect){
-  const greens=[
-    {hex:'#e8f5e2',label:'Menta suave'},{hex:'#c8e6c0',label:'Pistache'},
-    {hex:'#a5d6a7',label:'Verde água'},{hex:'#81c784',label:'Sage claro'},
-    {hex:'#66bb6a',label:'Verde médio'},{hex:'#4caf50',label:'Verde puro'},
-    {hex:'#43a047',label:'Esmeralda'},{hex:'#388e3c',label:'V. floresta'},
-    {hex:'#2e7d32',label:'V. musgo'},{hex:'#1b5e20',label:'V. escuro'},
-    {hex:'#b5cfa0',label:'Sage pastel'},{hex:'#8fb87a',label:'Sage médio'},
-    {hex:'#6b8f5e',label:'Sage'},{hex:'#4a7c59',label:'Sage profundo'},
-    {hex:'#2d5a3d',label:'V. noturno'},
-  ];
-  const pinks=[
-    {hex:'#fce4ec',label:'Rosa névoa'},{hex:'#f8bbd9',label:'Rosa pastel'},
-    {hex:'#f48fb1',label:'Rosa claro'},{hex:'#f06292',label:'Rosa médio'},
-    {hex:'#ec407a',label:'Rosa vivo'},{hex:'#e91e63',label:'Rosa intenso'},
-    {hex:'#c2185b',label:'Rosa escuro'},{hex:'#880e4f',label:'R. noturno'},
-    {hex:'#fdd7e4',label:'Blush suave'},{hex:'#e8c5b8',label:'Blush'},
-    {hex:'#f0a0b0',label:'Flamingo'},{hex:'#e07090',label:'Rosa antigo'},
-    {hex:'#d4547a',label:'Framboesa'},{hex:'#c0395e',label:'Cereja'},
-    {hex:'#ff80ab',label:'Rosa neon'},
-  ];
-  function fill(id, colors){
-    const el=document.getElementById(id);if(!el)return;el.innerHTML='';
-    colors.forEach(c=>{
-      const cell=document.createElement('div');
-      cell.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;';
-      const dot=document.createElement('div');
-      dot.style.cssText=`width:100%;aspect-ratio:1;border-radius:8px;background:${c.hex};box-shadow:0 1px 3px rgba(0,0,0,.12);transition:transform .15s,box-shadow .15s;`;
-      dot.title=c.label;
-      dot.addEventListener('mouseenter',()=>dot.style.transform='scale(1.08)');
+      dot.style.cssText=`width:100%;aspect-ratio:1;border-radius:10px;background:${hex};box-shadow:0 1px 4px rgba(0,0,0,.13);transition:transform .15s,box-shadow .15s;`;
+      dot.addEventListener('mouseenter',()=>dot.style.transform='scale(1.07)');
       dot.addEventListener('mouseleave',()=>dot.style.transform='');
       dot.addEventListener('click',()=>{
-        onSelect(c.hex);
-        el.querySelectorAll('div[data-selected]').forEach(d=>{d.removeAttribute('data-selected');d.style.boxShadow='0 1px 3px rgba(0,0,0,.12)';});
-        dot.setAttribute('data-selected','1');
-        dot.style.boxShadow=`0 0 0 2px #fff,0 0 0 4px ${c.hex}`;
+        saveCustomColor(hex);
+        dot.style.boxShadow=`0 0 0 3px #fff,0 0 0 5px ${hex}`;
+        setTimeout(()=>dot.style.boxShadow='0 1px 4px rgba(0,0,0,.13)',1200);
       });
+      dot.title=`${labels[i]} — clique para salvar nos presets`;
       const lbl=document.createElement('div');
-      lbl.style.cssText='font-size:9px;color:var(--muted);text-align:center;line-height:1.2;';
-      lbl.textContent=c.label;
+      lbl.style.cssText='font-size:9px;color:var(--muted);text-align:center;line-height:1.2;word-break:break-word;';
+      lbl.textContent=labels[i];
       cell.appendChild(dot);cell.appendChild(lbl);el.appendChild(cell);
     });
   }
-  fill(greenId,greens);
-  fill(pinkId,pinks);
+  buildTable('greenTable', COLOR_REF_GREENS, COLOR_REF_GREENS_LABELS);
+  buildTable('pinkTable', COLOR_REF_PINKS, COLOR_REF_PINKS_LABELS);
+}
+// Color reference data used across all sheets
+const COLOR_REF_GREENS=[
+  '#e8f5e2','#c8e6c0','#a5d6a7','#81c784','#66bb6a',
+  '#4caf50','#43a047','#388e3c','#2e7d32','#1b5e20',
+  '#b5cfa0','#8fb87a','#6b8f5e','#4a7c59','#2d5a3d',
+];
+const COLOR_REF_GREENS_LABELS=['Menta suave','Pistache','Verde água','Sage claro','Verde médio','Verde puro','Esmeralda','V. floresta','V. musgo','V. escuro','Sage pastel','Sage médio','Sage','Sage profundo','V. noturno'];
+const COLOR_REF_PINKS=[
+  '#fce4ec','#f8bbd9','#f48fb1','#f06292','#ec407a',
+  '#e91e63','#c2185b','#880e4f','#fdd7e4','#e8c5b8',
+  '#f0a0b0','#e07090','#d4547a','#c0395e','#ff80ab',
+];
+const COLOR_REF_PINKS_LABELS=['Rosa névoa','Rosa pastel','Rosa claro','Rosa médio','Rosa vibrante','Rosa intenso','Rosa escuro','R. noturno','Blush suave','Blush','Flamingo','Rosa antigo','Framboesa','Cereja','Rosa neon'];
+
+// Builds color reference swatches (circles, same style as presets) inside containerId
+// onSelect(hex) called when clicked; cpId is the color picker id to keep in sync
+function buildColorRefTables(containerId, onSelect, cpId){
+  const wrap=document.getElementById(containerId);if(!wrap)return;
+  wrap.innerHTML='';
+
+  function makeGroup(label, colors, labels){
+    const hdr=document.createElement('div');hdr.className='color-ref-tables-header';hdr.textContent=label;wrap.appendChild(hdr);
+    const row=document.createElement('div');row.className='color-ref-swatches';
+    colors.forEach((hex,i)=>{
+      const s=document.createElement('div');
+      s.className='color-ref-swatch';
+      s.style.background=hex;
+      s.title=labels[i];
+      s.addEventListener('click',()=>{
+        wrap.querySelectorAll('.color-ref-swatch').forEach(x=>x.classList.remove('sel'));
+        s.classList.add('sel');
+        onSelect(hex);
+        if(cpId)updCP(cpId,hex);
+      });
+      row.appendChild(s);
+    });
+    wrap.appendChild(row);
+  }
+
+  makeGroup('Tons de Verde', COLOR_REF_GREENS, COLOR_REF_GREENS_LABELS);
+  makeGroup('Tons de Rosa', COLOR_REF_PINKS, COLOR_REF_PINKS_LABELS);
+}
+
+// Legacy alias kept for palette sheet (uses old separate grid layout)
+function buildInlineColorTables(greenId, pinkId, onSelect){
+  buildColorRefTables(greenId, onSelect); // greenId not used, but kept for compat
 }
 function openPaletteSheet(){renderColorTables();renderPaletteMgr();openSh('paletteSheet');}
 document.getElementById('closePaletteSheet').addEventListener('click',()=>closeSh('paletteSheet'));
