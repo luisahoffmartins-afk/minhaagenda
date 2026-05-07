@@ -470,7 +470,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .half-line{position:absolute;top:50%;left:0;right:0;border-top:1px solid #f8f9fa;}
 /* day headers */
 .day-hdrs{display:flex;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--surface);}
-.tg-hdr{display:none;}
+.tg-hdr{width:var(--time-col);flex-shrink:0;}
 .day-hdr{flex:1;text-align:center;padding:8px 2px 6px;border-left:1px solid #f0ece6;cursor:pointer;overflow:hidden;}
 .day-hdr:first-child{border-left:none;}
 .day-hdr .dow{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
@@ -1083,9 +1083,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
           <span class="cal-sel-trigger-name" id="evCalTriggerName">Selecionar agenda</span>
           <span class="cal-sel-trigger-arrow">▾</span>
         </div>
-        <div class="cal-sel-popover" id="evCalPopover">
-          <div class="cal-sel-list"><div class="cal-opts" id="evCalOpts"></div></div>
-        </div>
+
       </div>
       <div class="f sh-color-block">
         <label>Cor do evento</label>
@@ -1159,9 +1157,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
           <span class="cal-sel-trigger-name" id="taskCalTriggerName">Selecionar agenda</span>
           <span class="cal-sel-trigger-arrow">▾</span>
         </div>
-        <div class="cal-sel-popover" id="taskCalPopover">
-          <div class="cal-sel-list"><div class="cal-opts" id="taskCalOpts"></div></div>
-        </div>
+
       </div>
       <div class="f sh-color-block">
         <label>Cor da tarefa</label>
@@ -1559,10 +1555,8 @@ const HAB_EMOJIS=['🌿','🔥','💧','🧘','🏃','📚','🍎','💪','😴'
 const DAYS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const MONTHS_S=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const MONTHS_F=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-// Read --hour-h from CSS so pixel math stays in sync with the stylesheet
 function getHH(){return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hour-h'))||80;}
 let HH=getHH();
-// Re-read on resize in case a media-query changes --hour-h (e.g. desktop 90px vs mobile 80px)
 window.addEventListener('resize',()=>{HH=getHH();});
 
 // In-memory state — kept in sync with Firestore via real-time listeners
@@ -2071,36 +2065,38 @@ function buildCalOpts(id,selId,cb){
 
   updateTrigger(selId);
 
-  // Setup trigger click (only once — check flag)
+  // Setup trigger click (only once per trigger element)
   if(trigger&&!trigger._calOptsReady){
     trigger._calOptsReady=true;
     trigger.addEventListener('click',e=>{
       e.stopPropagation();
+      const alreadyOpen=popover&&popover.classList.contains('open');
       document.querySelectorAll('.cal-sel-popover.open').forEach(p=>p.classList.remove('open'));
-      if(!popover)return;
+      if(!popover||alreadyOpen)return;
       const r=trigger.getBoundingClientRect();
-      const popH=220; // estimated popover height
-      const sheet=trigger.closest('.sheet');
-      const sheetR=sheet?sheet.getBoundingClientRect():{top:0,bottom:window.innerHeight,left:0,right:window.innerWidth};
-      const spaceBelow=sheetR.bottom-r.bottom-8;
-      const spaceAbove=r.top-sheetR.top-8;
-      // Position horizontally within sheet
-      const left=Math.max(sheetR.left+8,Math.min(r.left,sheetR.right-r.width-8));
+      const popH=220;
+      const spaceBelow=window.innerHeight-r.bottom-8;
+      const spaceAbove=r.top-8;
       popover.style.width=r.width+'px';
-      popover.style.left=left+'px';
+      popover.style.left=r.left+'px';
       popover.style.maxHeight=Math.min(280,Math.max(spaceBelow,spaceAbove)-4)+'px';
       if(spaceBelow>=popH||spaceBelow>=spaceAbove){
-        // open below
         popover.style.top=(r.bottom+4)+'px';
         popover.style.bottom='auto';
       } else {
-        // open above
-        popover.style.bottom=(window.innerHeight-r.top+4)+'px';
         popover.style.top='auto';
+        popover.style.bottom=(window.innerHeight-r.top+4)+'px';
       }
-      popover.classList.toggle('open');
+      popover.classList.add('open');
     });
-    document.addEventListener('click',closePopover,{capture:true,passive:true});
+  }
+  if(!document._calPopoverCloseRegistered){
+    document._calPopoverCloseRegistered=true;
+    document.addEventListener('click',e=>{
+      if(!e.target.closest('.cal-sel-trigger')&&!e.target.closest('.cal-sel-popover')){
+        document.querySelectorAll('.cal-sel-popover.open').forEach(p=>p.classList.remove('open'));
+      }
+    });
   }
 }
 
@@ -2346,11 +2342,8 @@ function buildAlldayBand(bandEl, dates){
   bandEl.classList.remove('has-items');
   const vis=new Set(cals.filter(c=>c.vis).map(c=>c.id));
   let hasAny=false;
-
-  // Spacer that lines up with the time gutter
   const spacer=document.createElement('div');spacer.className='tg-hdr';spacer.style.flexShrink='0';
   bandEl.appendChild(spacer);
-
   dates.forEach(date=>{
     const ds=fmtDate(date);
     const col=document.createElement('div');col.className='allday-col';
@@ -4176,5 +4169,14 @@ scrollToNow();
 initFirestoreListeners();
 initSidebarPin();
 </script>
+
+<!-- Popovers no nível do body — fora de qualquer container com transform -->
+<div class="cal-sel-popover" id="evCalPopover">
+  <div class="cal-sel-list"><div class="cal-opts" id="evCalOpts"></div></div>
+</div>
+<div class="cal-sel-popover" id="taskCalPopover">
+  <div class="cal-sel-list"><div class="cal-opts" id="taskCalOpts"></div></div>
+</div>
+
 </body>
 </html>
