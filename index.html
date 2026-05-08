@@ -1135,6 +1135,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="f" id="evRepeatEndRow" style="display:none"><label>Repetir até</label><input type="date" id="evRepeatEnd"/></div>
     </div>
     <div class="sh-acts">
+      <button class="btn-danger" id="deleteEvBtn" style="display:none">Excluir</button>
       <button class="btn-cancel" id="closeEvSheet2">Cancelar</button>
       <button class="btn-save" id="saveEvBtn" style="background:var(--accent)">Salvar</button>
     </div>
@@ -1182,6 +1183,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="f"><label>Notas</label><textarea id="taskNotes" placeholder="Observações..."></textarea></div>
     </div>
     <div class="sh-acts">
+      <button class="btn-danger" id="deleteTaskBtn" style="display:none">Excluir</button>
       <button class="btn-cancel" id="closeTaskSheet2">Cancelar</button>
       <button class="btn-save" id="saveTaskBtn" style="background:var(--accent)">Salvar</button>
     </div>
@@ -1211,6 +1213,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     <div class="f"><label>Data de fim (opcional)</label><input type="date" id="readingEnd"/></div>
     </div>
     <div class="sh-acts">
+      <button class="btn-danger" id="deleteReadingBtn" style="display:none">Excluir</button>
       <button class="btn-cancel" id="closeReadingSheet2">Cancelar</button>
       <button class="btn-save" id="saveReadingBtn" style="background:#8b6bb1">Salvar</button>
     </div>
@@ -1241,6 +1244,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
     </div>
     </div>
     <div class="sh-acts">
+      <button class="btn-danger" id="deleteHabitBtn" style="display:none">Excluir</button>
       <button class="btn-cancel" id="closeHabitSheet2">Cancelar</button>
       <button class="btn-save" id="saveHabitBtn" style="background:#e65100">Salvar</button>
     </div>
@@ -2879,7 +2883,7 @@ function toggleHabit(id,date){
 // SHEETS: EVENT
 // ══════════════════════════════════════════════
 function openNewEv(date,start,end){
-  editEvId=null;evEmoji=null;
+  editEvId=null;evEmoji=null;document.getElementById('deleteEvBtn').style.display='none';
   document.getElementById('evShTitle').textContent='Novo evento';
   document.getElementById('evTitle').value='';
   document.getElementById('evDate').value=date||fmtDate(new Date());
@@ -2911,7 +2915,7 @@ function openNewEv(date,start,end){
   openSh('evSheet');if(isD())setTimeout(()=>document.getElementById('evTitle').focus(),150);
 }
 function openEditEv(ev){
-  editEvId=ev.id;evEmoji=ev.emoji||null;
+  editEvId=ev.id;evEmoji=ev.emoji||null;document.getElementById('deleteEvBtn').style.display='';
   document.getElementById('evShTitle').textContent='Editar evento';
   document.getElementById('evTitle').value=ev.title;document.getElementById('evDate').value=ev.date;
   document.getElementById('evStart').value=ev.start||'09:00';document.getElementById('evEnd').value=ev.end||'10:00';
@@ -2971,7 +2975,7 @@ function saveEv(){
 // SHEETS: TASK
 // ══════════════════════════════════════════════
 function openNewTask(date){
-  editTaskId=null;taskEmoji=null;
+  editTaskId=null;taskEmoji=null;document.getElementById('deleteTaskBtn').style.display='none';
   document.getElementById('taskShTitle').textContent='Nova tarefa';
   document.getElementById('taskTitle').value='';document.getElementById('taskDate').value=date||'';
   document.getElementById('taskNotes').value='';
@@ -2998,7 +3002,7 @@ function openNewTask(date){
   openSh('taskSheet');if(isD())setTimeout(()=>document.getElementById('taskTitle').focus(),150);
 }
 function openEditTask(t){
-  editTaskId=t.id;taskEmoji=t.emoji||null;
+  editTaskId=t.id;taskEmoji=t.emoji||null;document.getElementById('deleteTaskBtn').style.display='';
   document.getElementById('taskShTitle').textContent='Editar tarefa';
   document.getElementById('taskTitle').value=t.title;document.getElementById('taskDate').value=t.date||'';
   document.getElementById('taskNotes').value=t.notes||'';
@@ -3048,7 +3052,7 @@ function refreshPri(){document.querySelectorAll('.pri-btn').forEach(b=>{b.classN
 // SHEETS: HABIT
 // ══════════════════════════════════════════════
 function openNewHabit(){
-  editHabitId=null;document.getElementById('habitShTitle').textContent='Novo hábito';
+  editHabitId=null;document.getElementById('habitShTitle').textContent='Novo hábito';document.getElementById('deleteHabitBtn').style.display='none';
   document.getElementById('habitName').value='';
   selHabitEmoji=HAB_EMOJIS[0];habitColor=PRESETS[2];selFreqs=[0,1,2,3,4,5,6];
   buildEmoji('habitEmojiRow',HAB_EMOJIS,selHabitEmoji,e=>selHabitEmoji=e);
@@ -3056,7 +3060,7 @@ function openNewHabit(){
   openSh('habitSheet');if(isD())setTimeout(()=>document.getElementById('habitName').focus(),150);
 }
 function openEditHabit(h){
-  editHabitId=h.id;document.getElementById('habitShTitle').textContent='Editar hábito';
+  editHabitId=h.id;document.getElementById('habitShTitle').textContent='Editar hábito';document.getElementById('deleteHabitBtn').style.display='';
   document.getElementById('habitName').value=h.name;
   selHabitEmoji=h.emoji||HAB_EMOJIS[0];habitColor=h.color||PRESETS[2];selFreqs=[...h.days];
   buildEmoji('habitEmojiRow',HAB_EMOJIS,selHabitEmoji,e=>selHabitEmoji=e);
@@ -3172,7 +3176,7 @@ function refreshStars(n){
 }
 
 function openNewReading(date){
-  editReadingId=null;
+  editReadingId=null;document.getElementById('deleteReadingBtn').style.display='none';
   document.getElementById('readingShTitle').textContent='📖 Novo livro';
   document.getElementById('readingTitle').value='';
   document.getElementById('readingStart').value=date||fmtDate(new Date());
@@ -3184,7 +3188,7 @@ function openNewReading(date){
   if(isD())setTimeout(()=>document.getElementById('readingTitle').focus(),150);
 }
 function openEditReading(book){
-  editReadingId=book.id;
+  editReadingId=book.id;document.getElementById('deleteReadingBtn').style.display='';
   document.getElementById('readingShTitle').textContent='📖 Editar livro';
   document.getElementById('readingTitle').value=book.title;
   document.getElementById('readingStart').value=book.startDate||'';
@@ -4153,6 +4157,13 @@ document.getElementById('importFileInput').addEventListener('change',e=>{
 document.getElementById('closeReadingSheet').addEventListener('click',()=>closeSh('readingSheet'));
 document.getElementById('closeReadingSheet2')?.addEventListener('click',()=>closeSh('readingSheet'));
 document.getElementById('saveReadingBtn').addEventListener('click',saveReading);
+document.getElementById('deleteReadingBtn').addEventListener('click',()=>{
+  if(!editReadingId)return;
+  if(confirm('Excluir este livro do histórico de leitura?')){
+    readingBooks=readingBooks.filter(x=>x.id!==editReadingId);
+    svReadingBooks();closeSh('readingSheet');renderAll();
+  }
+});
 // Star picker interactions
 document.querySelectorAll('#readingStars .star-btn').forEach(b=>{
   b.addEventListener('click',()=>refreshStars(parseInt(b.dataset.s)));
@@ -4167,12 +4178,33 @@ document.querySelectorAll('#readingStars .star-btn').forEach(b=>{
 document.getElementById('closeEvSheet').addEventListener('click',()=>closeSh('evSheet'));
 document.getElementById('closeEvSheet2')?.addEventListener('click',()=>closeSh('evSheet'));
 document.getElementById('saveEvBtn').addEventListener('click',saveEv);
+document.getElementById('deleteEvBtn').addEventListener('click',()=>{
+  if(!editEvId)return;
+  if(confirm('Excluir este evento e todas as suas recorrências?')){
+    evs=evs.filter(x=>x.id!==editEvId&&x.parentId!==editEvId);
+    sv('tb2_evs',evs);closeSh('evSheet');renderAll();
+  }
+});
 document.getElementById('closeTaskSheet').addEventListener('click',()=>closeSh('taskSheet'));
 document.getElementById('closeTaskSheet2')?.addEventListener('click',()=>closeSh('taskSheet'));
 document.getElementById('saveTaskBtn').addEventListener('click',saveTask);
+document.getElementById('deleteTaskBtn').addEventListener('click',()=>{
+  if(!editTaskId)return;
+  if(confirm('Excluir esta tarefa e todas as suas recorrências?')){
+    tasks=tasks.filter(x=>x.id!==editTaskId&&x.parentId!==editTaskId);
+    sv('tb2_tasks',tasks);closeSh('taskSheet');renderTasks();renderAll();
+  }
+});
 document.getElementById('closeHabitSheet').addEventListener('click',()=>closeSh('habitSheet'));
 document.getElementById('closeHabitSheet2')?.addEventListener('click',()=>closeSh('habitSheet'));
 document.getElementById('saveHabitBtn').addEventListener('click',saveHabit);
+document.getElementById('deleteHabitBtn').addEventListener('click',()=>{
+  if(!editHabitId)return;
+  if(confirm('Excluir este hábito?')){
+    habits=habits.filter(x=>x.id!==editHabitId);
+    sv('tb2_habits',habits);closeSh('habitSheet');renderHabits();renderAll();
+  }
+});
 document.getElementById('closeNewCal').addEventListener('click',()=>closeSh('newCalSheet'));
 document.getElementById('closeNewCalFooter')?.addEventListener('click',()=>closeSh('newCalSheet'));
 document.getElementById('saveCalBtn').addEventListener('click',saveCal);
