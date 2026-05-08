@@ -3234,7 +3234,7 @@ function saveCal(){
   const parent=cals.find(c=>c.id===parentId);
   const color=parentId&&calColor===PRESETS[0]?(parent?.color||calColor):calColor;
   const palette=getNewCalPalette();
-  cals.push({id:uid(),name,color,emoji:selCalEmoji,vis:true,parentId:parentId||null,palette:palette.length?palette:undefined});
+  cals.push({id:uid(),name,color,emoji:selCalEmoji,vis:true,parentId:parentId||null,palette:palette.length?palette:null});
   sv('tb2_cals',cals);closeSh('newCalSheet');renderCalList();
 }
 function openEditCal(calId){
@@ -3254,7 +3254,7 @@ function saveEditCal(){
   cal.color=editCalColor;cal.emoji=selEditCalEmoji;
   cal.parentId=document.getElementById('editCalParentSel').value||null;
   const palette=getEditCalPalette();
-  cal.palette=palette.length?palette:undefined;
+  cal.palette=palette.length?palette:null;
   // Propagate new calendar color to all events and tasks of this calendar
   if(oldColor!==editCalColor){
     evs.forEach(ev=>{if(ev.calId===editCalId)ev.color=editCalColor;});
